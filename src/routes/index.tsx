@@ -13,6 +13,11 @@ import clayBell from "@/assets/clay-bell.png";
 import clayScan from "@/assets/clay-scan.png";
 import clayBill from "@/assets/clay-bill.png";
 import clayService from "@/assets/clay-service.png";
+import clayManager from "@/assets/clay-manager.png";
+import clayAdmin from "@/assets/clay-admin.png";
+import clayBackup from "@/assets/clay-backup.png";
+import clayOffer from "@/assets/clay-offer.png";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -179,6 +184,72 @@ function Landing() {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* ROLES */}
+      <section className="mx-auto max-w-6xl px-6 pb-28">
+        <h2 className="text-4xl font-bold md:text-5xl">Har role ka <span className="text-neon">apna dashboard.</span></h2>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {[
+            { img: clayAdmin, t: "Admin", d: "Saari branches, GST, offers, staff, backups — poora control.", c: "from-primary/30" },
+            { img: clayManager, t: "Manager", d: "Apne hotel ki booking, check-in, check-out aur bills.", c: "from-accent/30" },
+            { img: clayService, t: "Staff", d: "Barcode scan karo — cleaning, food, supplies update.", c: "from-pink/30" },
+          ].map((r, i) => (
+            <motion.div key={r.t} initial={{ opacity: 0, y: 50, rotate: -3 }} whileInView={{ opacity: 1, y: 0, rotate: 0 }} viewport={{ once: true }}
+              transition={{ delay: i * 0.12, type: "spring" }} whileHover={{ y: -8, rotate: i === 1 ? 0 : i === 0 ? -1.5 : 1.5 }}
+              className={`group relative overflow-hidden rounded-[2rem] border bg-gradient-to-b ${r.c} to-card p-6 text-center`}>
+              <img src={r.img} alt="" loading="lazy" width={1024} height={1024} className="mx-auto h-56 w-auto transition-transform duration-500 group-hover:scale-110" />
+              <h3 className="mt-2 text-2xl font-bold">{r.t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{r.d}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* BENTO */}
+      <section className="mx-auto max-w-6xl px-6 pb-28">
+        <div className="grid gap-4 md:grid-cols-4 md:grid-rows-2">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="relative overflow-hidden rounded-[2rem] bg-aurora p-8 text-primary-foreground md:col-span-2 md:row-span-2">
+            <div className="text-sm opacity-80">Offers engine</div>
+            <h3 className="mt-2 text-3xl font-extrabold">Discount codes jo khud bill me lagte hain.</h3>
+            <img src={clayOffer} alt="" loading="lazy" width={1024} height={1024} className="absolute -bottom-8 -right-8 h-64 animate-float" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="relative overflow-hidden rounded-[2rem] border bg-card p-6 md:col-span-2">
+            <div className="max-w-[60%]"><DatabaseBackup className="size-6 text-accent" /><h3 className="mt-2 text-xl font-bold">Roz raat auto backup</h3>
+              <p className="text-sm text-muted-foreground">30 din tak safe, ek click me JSON download.</p></div>
+            <img src={clayBackup} alt="" loading="lazy" width={1024} height={1024} className="absolute -right-4 top-1/2 h-40 -translate-y-1/2" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="rounded-[2rem] border bg-card p-6">
+            <Receipt className="size-6 text-pink" /><div className="mt-3 font-display text-3xl font-bold">6% + 6%</div>
+            <div className="text-sm text-muted-foreground">CGST + SGST alag-alag</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+            className="rounded-[2rem] border bg-card p-6">
+            <Fingerprint className="size-6 text-accent" /><div className="mt-3 font-display text-3xl font-bold">1 ID</div>
+            <div className="text-sm text-muted-foreground">Guest har branch me pehchana jaata hai</div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-6 pb-28">
+        <h2 className="mb-8 text-center text-4xl font-bold">Sawaal <span className="text-neon">& jawaab</span></h2>
+        <Accordion type="single" collapsible className="space-y-3">
+          {[
+            ["Kya purane guest ka data dusri branch me milega?", "Haan — mobile ya Aadhaar daalte hi naam, address aur pasand aa jaati hai. Lekin pichli visits sirf apne hotel ki dikhti hain; poori history sirf admin dekh sakta hai."],
+            ["Bill kaise print hota hai?", "Check-out par bill ek click me banta hai. Print button dabao — computer ya phone se juda koi bhi printer chalega."],
+            ["Staff barcode kaise scan karega?", "Rooms page se barcode labels print karo aur darwaze par lagao. Staff 'Scan Room' kholke phone camera se scan kare."],
+            ["Check-in form me extra cheezein puch sakte hain?", "Admin naye fields bana sakta hai — text, number, date, email ya dropdown — aur required ya optional set kar sakta hai."],
+          ].map(([q, a]) => (
+            <AccordionItem key={q} value={q} className="rounded-2xl border bg-card px-5">
+              <AccordionTrigger className="text-left">{q}</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">{a}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </section>
 
       {/* CTA */}
