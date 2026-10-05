@@ -9,6 +9,8 @@ export type Me = {
   full_name: string | null;
   hotel_id: string | null;
   department_id: string | null;
+  mobile: string | null;
+  onboarded: boolean;
   roles: Role[];
 };
 
@@ -28,6 +30,8 @@ export function useMe() {
         full_name: p?.full_name ?? null,
         hotel_id: p?.hotel_id ?? null,
         department_id: p?.department_id ?? null,
+        mobile: p?.mobile ?? null,
+        onboarded: !!p?.onboarded,
         roles: (r ?? []).map((x) => x.role as Role),
       };
     },
