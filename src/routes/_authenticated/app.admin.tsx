@@ -45,7 +45,7 @@ function Admin() {
   );
 }
 
-const card = "rounded-3xl border bg-card p-5";
+const card = "rounded-3xl border bg-card shadow-card p-5";
 
 function Hotels() {
   const qc = useQueryClient();

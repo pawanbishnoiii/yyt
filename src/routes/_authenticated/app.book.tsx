@@ -152,7 +152,7 @@ function Booking() {
 
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.25 }}
-          className="rounded-3xl border bg-card p-6">
+          className="rounded-3xl border bg-card shadow-card p-6">
           {step === 0 && (
             <div className="space-y-6">
               <div className="flex flex-col gap-2 sm:flex-row">

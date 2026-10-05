@@ -122,7 +122,7 @@ function Landing() {
           {features.map((f, i) => (
             <motion.div key={f.title} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
               transition={{ delay: (i % 2) * 0.12 }} whileHover={{ y: -6 }}
-              className="group relative overflow-hidden rounded-[2rem] border bg-card p-8">
+              className="group relative overflow-hidden rounded-[2rem] border bg-card shadow-card p-8">
               <div className="absolute -right-10 -top-10 size-48 rounded-full bg-primary/20 blur-3xl transition-all group-hover:bg-accent/30" />
               <f.icon className="size-8 text-accent" />
               <h3 className="mt-4 text-2xl font-bold">{f.title}</h3>
@@ -163,7 +163,7 @@ function Landing() {
           <ol className="mt-8 space-y-5">
             {["Guest — mobile ya Aadhaar se fetch, ya naya profile", "Room — type, nights aur offer select", "Confirm — booking ID, check-in aur room live"].map((s, i) => (
               <motion.li key={s} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-                className="flex gap-4 rounded-2xl border bg-card p-4">
+                className="flex gap-4 rounded-2xl border bg-card shadow-card p-4">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-neon font-display font-bold">{i + 1}</span>
                 <span className="self-center">{s}</span>
               </motion.li>
@@ -177,7 +177,7 @@ function Landing() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {more.map((m, i) => (
             <motion.div key={m.t} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}
-              className="rounded-3xl border bg-card p-5 transition-colors hover:border-primary">
+              className="rounded-3xl border bg-card shadow-card p-5 transition-colors hover:border-primary">
               <m.icon className="size-6 text-pink" />
               <div className="mt-3 font-semibold">{m.t}</div>
               <div className="text-sm text-muted-foreground">{m.d}</div>
@@ -216,18 +216,18 @@ function Landing() {
             <img src={clayOffer} alt="" loading="lazy" width={1024} height={1024} className="absolute -bottom-8 -right-8 h-64 animate-float" />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="relative overflow-hidden rounded-[2rem] border bg-card p-6 md:col-span-2">
+            className="relative overflow-hidden rounded-[2rem] border bg-card shadow-card p-6 md:col-span-2">
             <div className="max-w-[60%]"><DatabaseBackup className="size-6 text-accent" /><h3 className="mt-2 text-xl font-bold">Roz raat auto backup</h3>
               <p className="text-sm text-muted-foreground">30 din tak safe, ek click me JSON download.</p></div>
             <img src={clayBackup} alt="" loading="lazy" width={1024} height={1024} className="absolute -right-4 top-1/2 h-40 -translate-y-1/2" />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-            className="rounded-[2rem] border bg-card p-6">
+            className="rounded-[2rem] border bg-card shadow-card p-6">
             <Receipt className="size-6 text-pink" /><div className="mt-3 font-display text-3xl font-bold">6% + 6%</div>
             <div className="text-sm text-muted-foreground">CGST + SGST alag-alag</div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-            className="rounded-[2rem] border bg-card p-6">
+            className="rounded-[2rem] border bg-card shadow-card p-6">
             <Fingerprint className="size-6 text-accent" /><div className="mt-3 font-display text-3xl font-bold">1 ID</div>
             <div className="text-sm text-muted-foreground">Guest har branch me pehchana jaata hai</div>
           </motion.div>
@@ -244,7 +244,7 @@ function Landing() {
             ["Staff barcode kaise scan karega?", "Rooms page se barcode labels print karo aur darwaze par lagao. Staff 'Scan Room' kholke phone camera se scan kare."],
             ["Check-in form me extra cheezein puch sakte hain?", "Admin naye fields bana sakta hai — text, number, date, email ya dropdown — aur required ya optional set kar sakta hai."],
           ].map(([q, a]) => (
-            <AccordionItem key={q} value={q} className="rounded-2xl border bg-card px-5">
+            <AccordionItem key={q} value={q} className="rounded-2xl border bg-card shadow-card px-5">
               <AccordionTrigger className="text-left">{q}</AccordionTrigger>
               <AccordionContent className="text-muted-foreground">{a}</AccordionContent>
             </AccordionItem>
