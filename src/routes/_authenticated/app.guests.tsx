@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { isAdmin, useMe } from "@/lib/me";
 import { PageTitle } from "@/components/NoHotel";
 import { Input } from "@/components/ui/input";
+import { GuestPrefs } from "@/components/GuestPrefs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/app/guests")({ component: Guests });
@@ -53,6 +54,7 @@ function Guests() {
                   <div>
                     <div className="font-medium">{g.first_name} {g.last_name} <span className="text-xs text-muted-foreground">· {g.guest_code}</span></div>
                     <div className="text-xs text-muted-foreground">{g.mobile} · {g.gender} · {g.age}y</div>
+                    {!!g.preferences?.length && <div className="text-[11px] text-primary">{g.preferences.join(" · ")}</div>}
                   </div>
                 </div>
                 <div className="hidden flex-wrap justify-end gap-1 sm:flex">
@@ -81,7 +83,9 @@ function Guests() {
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
         <SheetContent>
           <SheetHeader><SheetTitle className="flex items-center gap-2"><History className="size-4" /> {open?.name}</SheetTitle></SheetHeader>
-          <div className="mt-4 space-y-3 px-4">
+          <div className="mt-4 space-y-3 overflow-auto px-4 pb-6">
+            {open && <GuestPrefs guestId={open.id} />}
+            <div className="pt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Visit history</div>
             {(visits ?? []).map((v) => (
               <div key={v.booking_code} className="rounded-2xl border p-3 text-sm">
                 <div className="flex justify-between font-medium"><span>{v.hotel_name}</span><span className="text-xs capitalize text-muted-foreground">{v.status.replace("_", " ")}</span></div>
