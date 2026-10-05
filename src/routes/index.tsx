@@ -100,8 +100,8 @@ function Landing() {
           <motion.div style={{ y, rotateX: rot }} initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, type: "spring", stiffness: 60 }}
             className="relative mx-auto mt-16 max-w-5xl [perspective:1200px]">
             <ProductPreview />
-            <img src={clayBell} alt="" width={1024} height={1024} className="absolute -right-10 -top-20 hidden h-28 w-auto animate-float drop-shadow-xl md:block" />
-            <img src={clayManager} alt="" width={1024} height={1024} className="absolute -bottom-14 -left-14 hidden h-28 w-auto animate-float drop-shadow-xl md:block" style={{ animationDelay: "1.5s" }} />
+            <img src={clayBell} alt="" width={1024} height={1024} style={{ width: 120, height: 120 }} className="absolute -right-10 -top-20 hidden h-28 w-auto animate-float drop-shadow-xl md:block" />
+            <img src={clayManager} alt="" width={1024} height={1024} className="absolute -bottom-14 -left-14 hidden h-28 w-auto animate-float drop-shadow-xl md:block" style={{ width: 120, height: 120, animationDelay: "1.5s" }} />
           </motion.div>
         </div>
       </section>
