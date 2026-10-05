@@ -66,15 +66,14 @@ function Landing() {
       </nav>
 
       {/* HERO */}
-      <section ref={ref} className="relative flex min-h-[100svh] items-center overflow-hidden">
-        <motion.img style={{ y, scale }} src={hero} alt="Neon-lit luxury hotel lobby" width={1600} height={912}
-          className="absolute inset-0 size-full object-cover opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
-        <div className="absolute inset-0 grid-bg opacity-40" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 pt-24 md:grid-cols-[1.3fr_1fr]">
+      <section ref={ref} className="relative flex min-h-[100svh] items-center overflow-hidden bg-soft">
+        <div className="absolute -left-32 top-20 size-96 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute -right-20 bottom-10 size-96 rounded-full bg-pink/15 blur-3xl" />
+        <div className="absolute inset-0 grid-bg opacity-60" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 pb-24 pt-32 md:grid-cols-[1.1fr_1fr]">
           <div>
             <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs text-accent">
+              className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-medium text-primary shadow-card">
               <span className="size-2 animate-pulse rounded-full bg-success" /> Live across all branches
             </motion.span>
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}
@@ -83,16 +82,22 @@ function Landing() {
             </motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
               className="mt-6 max-w-lg text-lg text-muted-foreground">
-              3-step booking, GST billing with QR, room barcodes aur staff scanning — sab real-time.
+              Fast check-in, GST billing with QR, room barcodes aur staff scanning — sab real-time, har branch me.
             </motion.p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-8 flex gap-3">
-              <Button variant="neon" size="lg" asChild><Link to="/auth">Open dashboard <ArrowRight /></Link></Button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-8 flex flex-wrap gap-3">
+              <Button variant="neon" size="lg" asChild><Link to="/auth">Apna hotel register karo <ArrowRight /></Link></Button>
             </motion.div>
           </div>
-          <motion.div initial={{ opacity: 0, scale: 0.8, rotate: -6 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ delay: 0.3, type: "spring" }}
-            className="relative hidden md:block">
-            <div className="absolute inset-8 rounded-full bg-primary/40 blur-3xl" />
-            <img src={clayBell} alt="" width={1024} height={1024} className="relative animate-float drop-shadow-2xl" />
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, type: "spring" }} className="relative">
+            <motion.div style={{ y }} className="overflow-hidden rounded-[2rem] shadow-card ring-8 ring-card">
+              <motion.img style={{ scale }} src={hero} alt="Luxury hotel lobby" width={1600} height={912} className="aspect-[4/3] w-full object-cover" />
+            </motion.div>
+            <motion.div initial={{ x: -30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.6 }}
+              className="absolute -bottom-8 -left-6 flex items-center gap-3 rounded-2xl bg-card p-3 pr-5 shadow-card">
+              <span className="grid size-10 place-items-center rounded-xl bg-success/15 text-success"><Zap className="size-5" /></span>
+              <div><div className="text-xs text-muted-foreground">Room 204</div><div className="text-sm font-bold">Checked in · 8 sec</div></div>
+            </motion.div>
+            <img src={clayBell} alt="" width={1024} height={1024} className="absolute -right-8 -top-12 h-40 animate-float drop-shadow-xl" />
           </motion.div>
         </div>
       </section>
