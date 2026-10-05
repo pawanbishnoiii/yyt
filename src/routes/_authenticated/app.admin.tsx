@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { isAdmin, useMe } from "@/lib/me";
 import { createStaffUser } from "@/lib/admin.functions";
 import { PageTitle } from "@/components/NoHotel";
+import clayOffer from "@/assets/clay-offer.png";
+import clayBackup from "@/assets/clay-backup.png";
+import clayAdmin from "@/assets/clay-admin.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +26,7 @@ function Admin() {
   if (!isAdmin(me)) return <p className="text-muted-foreground">Sirf admin ke liye.</p>;
   return (
     <div>
-      <PageTitle title="Admin control" sub="Hotels, staff, taxes, offers, check-in form, backups" />
+      <PageTitle title="Admin control" sub="Hotels, staff, taxes, offers, check-in form, backups"><img src={clayAdmin} alt="" width={1024} height={1024} className="h-16 animate-float" /></PageTitle>
       <Tabs defaultValue="hotels">
         <TabsList className="mb-6 flex h-auto flex-wrap justify-start gap-1 rounded-2xl bg-card p-1">
           {[["hotels", Building2, "Hotels"], ["staff", Users, "Staff"], ["tax", Percent, "GST & taxes"], ["offers", Tag, "Offers"], ["fields", ListChecks, "Check-in form"], ["backup", DatabaseBackup, "Backups"]].map(([v, I, l]) => {
@@ -201,6 +204,7 @@ function Offers() {
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className={card + " space-y-3"}>
+        <img src={clayOffer} alt="" width={1024} height={1024} loading="lazy" className="mx-auto h-28 animate-float" />
         <h3 className="font-semibold">New offer</h3>
         <div><Label>Title</Label><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
         <div><Label>Code</Label><Input value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} /></div>
@@ -288,7 +292,7 @@ function Backups() {
   return (
     <div className={card}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div><h3 className="font-semibold">Automatic backups</h3><p className="text-xs text-muted-foreground">Roz raat 2:00 AM (IST) automatic. 30 din tak rakhe jaate hain.</p></div>
+        <div className="flex items-center gap-4"><img src={clayBackup} alt="" width={1024} height={1024} loading="lazy" className="h-20" /><div><h3 className="font-semibold">Automatic backups</h3><p className="text-xs text-muted-foreground">Roz raat 2:00 AM (IST) automatic. 30 din tak rakhe jaate hain.</p></div></div>
         <Button variant="neon" onClick={run}><DatabaseBackup /> Backup now</Button>
       </div>
       <div className="divide-y">
