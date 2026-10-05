@@ -297,27 +297,48 @@ export type Database = {
       hotels: {
         Row: {
           address: string | null
+          cgst_rate: number
           city: string | null
           created_at: string
+          gst_number: string | null
           id: string
           name: string
+          owner_id: string | null
           phone: string | null
+          pincode: string | null
+          sgst_rate: number
+          state: string | null
+          upi_id: string | null
         }
         Insert: {
           address?: string | null
+          cgst_rate?: number
           city?: string | null
           created_at?: string
+          gst_number?: string | null
           id?: string
           name: string
+          owner_id?: string | null
           phone?: string | null
+          pincode?: string | null
+          sgst_rate?: number
+          state?: string | null
+          upi_id?: string | null
         }
         Update: {
           address?: string | null
+          cgst_rate?: number
           city?: string | null
           created_at?: string
+          gst_number?: string | null
           id?: string
           name?: string
+          owner_id?: string | null
           phone?: string | null
+          pincode?: string | null
+          sgst_rate?: number
+          state?: string | null
+          upi_id?: string | null
         }
         Relationships: []
       }
@@ -389,6 +410,8 @@ export type Database = {
           full_name: string | null
           hotel_id: string | null
           id: string
+          mobile: string | null
+          onboarded: boolean
         }
         Insert: {
           created_at?: string
@@ -397,6 +420,8 @@ export type Database = {
           full_name?: string | null
           hotel_id?: string | null
           id: string
+          mobile?: string | null
+          onboarded?: boolean
         }
         Update: {
           created_at?: string
@@ -405,6 +430,8 @@ export type Database = {
           full_name?: string | null
           hotel_id?: string | null
           id?: string
+          mobile?: string | null
+          onboarded?: boolean
         }
         Relationships: [
           {
@@ -536,6 +563,29 @@ export type Database = {
     }
     Functions: {
       can_hotel: { Args: { _hotel: string }; Returns: boolean }
+      complete_onboarding: {
+        Args: {
+          _address: string
+          _branch_address: string
+          _branch_name: string
+          _business_name: string
+          _cgst: number
+          _city: string
+          _gst: string
+          _manager_name: string
+          _mobile: string
+          _phone: string
+          _pincode: string
+          _price: number
+          _room_count: number
+          _room_type: string
+          _sgst: number
+          _start_no: number
+          _state: string
+          _upi: string
+        }
+        Returns: string
+      }
       guest_visits: {
         Args: { _guest: string }
         Returns: {
@@ -557,6 +607,10 @@ export type Database = {
       is_member: { Args: never; Returns: boolean }
       is_mgr: { Args: { _hotel: string }; Returns: boolean }
       my_hotel: { Args: never; Returns: string }
+      quick_checkin: {
+        Args: { _guest: string; _nights: number; _room: string }
+        Returns: string
+      }
       run_backup: { Args: never; Returns: string }
     }
     Enums: {

@@ -22,7 +22,7 @@ function Bills() {
   return (
     <div>
       <PageTitle title="Bills" sub={`${data?.length ?? 0} invoices · ${inr(total)} collected · ${inr(tax)} GST`} />
-      <div className="overflow-x-auto rounded-3xl border bg-card">
+      <div className="overflow-x-auto rounded-3xl border bg-card shadow-card">
         <table className="w-full text-sm">
           <thead className="text-left text-xs text-muted-foreground"><tr className="border-b">
             {["Invoice", "Guest", "Room", "Date", "CGST", "SGST", "Total", ""].map((h) => <th key={h} className="p-4 font-medium">{h}</th>)}

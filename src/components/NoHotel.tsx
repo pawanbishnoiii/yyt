@@ -2,7 +2,7 @@ import clayBell from "@/assets/clay-bell.png";
 
 export function NoHotel() {
   return (
-    <div className="grid place-items-center rounded-3xl border bg-card p-12 text-center">
+    <div className="grid place-items-center rounded-3xl border bg-card shadow-card p-12 text-center">
       <img src={clayBell} alt="" width={1024} height={1024} loading="lazy" className="h-32" />
       <h2 className="mt-4 text-xl font-bold">Pehle hotel select / create karo</h2>
       <p className="mt-1 text-sm text-muted-foreground">Admin → Hotels me naya hotel add karein, phir upar se select karein.</p>

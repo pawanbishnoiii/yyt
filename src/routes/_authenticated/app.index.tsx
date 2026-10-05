@@ -68,7 +68,7 @@ function Dashboard() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-            className="rounded-3xl border bg-card p-5">
+            className="rounded-3xl border bg-card shadow-card p-5">
             <s.icon className={`size-5 ${s.tone}`} />
             <div className="mt-3 font-display text-3xl font-bold">
               {s.money ? "₹" : ""}<CountUp end={s.value} duration={1} preserveValue separator="," />
@@ -79,7 +79,7 @@ function Dashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-3xl border bg-card p-5 lg:col-span-2">
+        <div className="rounded-3xl border bg-card shadow-card p-5 lg:col-span-2">
           <div className="mb-4 flex justify-between"><h3 className="font-semibold">Check-ins & revenue</h3><span className="text-xs text-muted-foreground">Last 7 days</span></div>
           <div className="h-64">
             <ResponsiveContainer>
@@ -99,7 +99,7 @@ function Dashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-3xl border bg-card p-5">
+        <div className="rounded-3xl border bg-card shadow-card p-5">
           <h3 className="font-semibold">Room status</h3>
           <div className="h-48">
             <ResponsiveContainer>
@@ -115,7 +115,7 @@ function Dashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-3xl border bg-card p-5 lg:col-span-2">
+        <div className="rounded-3xl border bg-card shadow-card p-5 lg:col-span-2">
           <h3 className="mb-3 font-semibold">Recent bookings</h3>
           <div className="divide-y">
             {(data?.bookings ?? []).slice(0, 6).map((b) => (
@@ -137,7 +137,7 @@ function Dashboard() {
             <div className="mt-1 max-w-[60%] font-display text-lg font-bold">3-step booking + one-click check-in</div>
             {isManager(me) && <Button size="sm" variant="secondary" className="mt-3" asChild><Link to="/app/book">Start</Link></Button>}
           </div>
-          <div className="rounded-3xl border bg-card p-5">
+          <div className="rounded-3xl border bg-card shadow-card p-5">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Live service feed</h3>
               <img src={clayService} alt="" width={1024} height={1024} loading="lazy" className="h-10" />

@@ -44,7 +44,7 @@ function Guests() {
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input className="rounded-full pl-9" placeholder="Search name, mobile, Aadhaar, guest ID" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
-          <div className="overflow-hidden rounded-3xl border bg-card">
+          <div className="overflow-hidden rounded-3xl border bg-card shadow-card">
             {(guests ?? []).map((g) => (
               <button key={g.id} onClick={() => setOpen({ id: g.id, name: `${g.first_name} ${g.last_name}` })}
                 className="flex w-full items-center justify-between border-b p-4 text-left text-sm last:border-0 hover:bg-secondary">
@@ -63,7 +63,7 @@ function Guests() {
             {!guests?.length && <p className="p-8 text-center text-sm text-muted-foreground">No guests found.</p>}
           </div>
         </div>
-        <div className="rounded-3xl border bg-card p-5">
+        <div className="rounded-3xl border bg-card shadow-card p-5">
           <h3 className="font-semibold">Guest interests</h3>
           <p className="text-xs text-muted-foreground">Kya pasand hai — offers plan karo</p>
           <div className="mt-4 h-72">

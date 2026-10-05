@@ -75,7 +75,7 @@ function Scan() {
     <div className="mx-auto max-w-lg">
       <PageTitle title="Scan room" sub="Room ka barcode scan karo aur service update karo" />
       {!room && (
-        <div className="rounded-3xl border bg-card p-6 text-center">
+        <div className="rounded-3xl border bg-card shadow-card p-6 text-center">
           {scanning ? (
             <div id="reader" className="overflow-hidden rounded-2xl" />
           ) : (
@@ -91,7 +91,7 @@ function Scan() {
         </div>
       )}
       {room && (
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl border bg-card p-6">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl border bg-card shadow-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-display text-4xl font-bold text-neon">{room.number}</div>
