@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "motion/react";
-import CountUp from "react-countup";
+import CountUp from "@/components/Count";
 import { useRef } from "react";
 import {
   BedDouble, Receipt, ScanLine, ShieldCheck, Sparkles, Building2, Users, DatabaseBackup,

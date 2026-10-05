@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import CountUp from "react-countup";
+import CountUp from "@/components/Count";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, PieChart, Pie, Cell } from "recharts";
 import { BedDouble, LogIn, LogOut, IndianRupee, Sparkles, Utensils, Wrench } from "lucide-react";
 import { formatDistanceToNow, format, subDays } from "date-fns";
