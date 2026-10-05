@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      alerts: {
+        Row: {
+          created_at: string
+          hotel_id: string
+          id: string
+          kind: string
+          message: string
+          ref_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          hotel_id: string
+          id?: string
+          kind: string
+          message: string
+          ref_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          hotel_id?: string
+          id?: string
+          kind?: string
+          message?: string
+          ref_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       backups: {
         Row: {
           created_at: string
@@ -112,6 +147,7 @@ export type Database = {
           check_out: string | null
           created_at: string
           created_by: string | null
+          flagged: boolean
           guest_id: string
           hotel_id: string
           id: string
@@ -119,6 +155,7 @@ export type Database = {
           offer_id: string | null
           rate: number
           room_id: string
+          source: string
           status: string
         }
         Insert: {
@@ -128,6 +165,7 @@ export type Database = {
           check_out?: string | null
           created_at?: string
           created_by?: string | null
+          flagged?: boolean
           guest_id: string
           hotel_id: string
           id?: string
@@ -135,6 +173,7 @@ export type Database = {
           offer_id?: string | null
           rate: number
           room_id: string
+          source?: string
           status?: string
         }
         Update: {
@@ -144,6 +183,7 @@ export type Database = {
           check_out?: string | null
           created_at?: string
           created_by?: string | null
+          flagged?: boolean
           guest_id?: string
           hotel_id?: string
           id?: string
@@ -151,6 +191,7 @@ export type Database = {
           offer_id?: string | null
           rate?: number
           room_id?: string
+          source?: string
           status?: string
         }
         Relationships: [
@@ -263,6 +304,8 @@ export type Database = {
           interests: string[]
           last_name: string
           mobile: string
+          preferences: string[]
+          stay_notes: string | null
         }
         Insert: {
           aadhaar?: string | null
@@ -277,6 +320,8 @@ export type Database = {
           interests?: string[]
           last_name: string
           mobile: string
+          preferences?: string[]
+          stay_notes?: string | null
         }
         Update: {
           aadhaar?: string | null
@@ -291,6 +336,8 @@ export type Database = {
           interests?: string[]
           last_name?: string
           mobile?: string
+          preferences?: string[]
+          stay_notes?: string | null
         }
         Relationships: []
       }
@@ -446,6 +493,63 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_issues: {
+        Row: {
+          category: string
+          created_at: string
+          hotel_id: string
+          id: string
+          note: string | null
+          reported_by: string | null
+          resolved: boolean
+          resolved_at: string | null
+          room_id: string
+          severity: string
+          tag: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          hotel_id: string
+          id?: string
+          note?: string | null
+          reported_by?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          room_id: string
+          severity?: string
+          tag: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          hotel_id?: string
+          id?: string
+          note?: string | null
+          reported_by?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          room_id?: string
+          severity?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_issues_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_issues_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -611,7 +715,9 @@ export type Database = {
         Args: { _guest: string; _nights: number; _room: string }
         Returns: string
       }
+      run_automations: { Args: never; Returns: undefined }
       run_backup: { Args: never; Returns: string }
+      seed_demo: { Args: { _hotel: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "manager" | "staff"
