@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/app/admin")({ component: A
 
 function Admin() {
   const { data: me } = useMe();
-  if (!isAdmin(me)) return <p className="text-muted-foreground">Sirf admin ke liye.</p>;
+  if (!isAdmin(me)) return <p className="text-muted-foreground">Admins only.</p>;
   return (
     <div>
       <PageTitle title="Admin control" sub="Hotels, staff, taxes, offers, check-in form, backups"><img src={clayAdmin} alt="" width={1024} height={1024} className="h-16 animate-float" /></PageTitle>
@@ -121,7 +121,7 @@ function Staff() {
     setBusy(true);
     try {
       await create({ data: { ...f, role: f.role as "manager", hotel_id: f.hotel_id || null, department_id: f.department_id || null } });
-      toast.success("User created — wo ab sign in kar sakta hai");
+      toast.success("User created — they can sign in now");
       setF({ email: "", password: "", full_name: "", role: "manager", hotel_id: "", department_id: "" });
       qc.invalidateQueries({ queryKey: ["people"] });
     } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
@@ -303,7 +303,7 @@ function Backups() {
             <Button size="sm" variant="outline" onClick={() => download(b.id)}><Download /> JSON</Button>
           </div>
         ))}
-        {!data?.length && <p className="py-6 text-center text-sm text-muted-foreground">Abhi koi backup nahi.</p>}
+        {!data?.length && <p className="py-6 text-center text-sm text-muted-foreground">No backups yet.</p>}
       </div>
     </div>
   );

@@ -37,7 +37,7 @@ function Guests() {
 
   return (
     <div>
-      <PageTitle title="Guests" sub={isAdmin(me) ? "Chain-wide guests · full visit history" : "Visit history sirf aapke hotel ki dikhegi"} />
+      <PageTitle title="Guests" sub={isAdmin(me) ? "Chain-wide guests · full visit history" : "You see visit history for your hotel only"} />
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="relative mb-4">
@@ -65,7 +65,7 @@ function Guests() {
         </div>
         <div className="rounded-3xl border bg-card shadow-card p-5">
           <h3 className="font-semibold">Guest interests</h3>
-          <p className="text-xs text-muted-foreground">Kya pasand hai — offers plan karo</p>
+          <p className="text-xs text-muted-foreground">What guests love — plan offers around it</p>
           <div className="mt-4 h-72">
             <ResponsiveContainer>
               <BarChart data={interestData} layout="vertical">
@@ -89,7 +89,7 @@ function Guests() {
                 <div className="text-xs">{format(new Date(v.check_in), "dd MMM yy")} → {v.check_out ? format(new Date(v.check_out), "dd MMM yy") : "staying"}</div>
               </div>
             ))}
-            {!visits?.length && <p className="text-sm text-muted-foreground">Is hotel me koi visit record nahi.</p>}
+            {!visits?.length && <p className="text-sm text-muted-foreground">No visits recorded at this hotel.</p>}
           </div>
         </SheetContent>
       </Sheet>
