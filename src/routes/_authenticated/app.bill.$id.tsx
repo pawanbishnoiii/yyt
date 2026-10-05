@@ -15,7 +15,7 @@ function BillView() {
     queryKey: ["bill", id],
     queryFn: async () => {
       const [{ data: b }, { data: s }] = await Promise.all([
-        supabase.from("bills").select("*, hotels(name,address,phone), bookings(*, guests(*), rooms(number,room_type), offers(code,discount_pct))").eq("id", id).single(),
+        supabase.from("bills").select("*, hotels(name,address,phone,city,state,pincode,gst_number,upi_id), bookings(*, guests(*), rooms(number,room_type), offers(code,discount_pct))").eq("id", id).single(),
         supabase.from("business_settings").select("*").eq("id", 1).single(),
       ]);
       return { b, s };
@@ -25,9 +25,12 @@ function BillView() {
   const s = data?.s;
   if (!b) return <p className="text-muted-foreground">Loading bill…</p>;
   const bk = b.bookings;
-  const upi = s?.upi_id
-    ? `upi://pay?pa=${encodeURIComponent(s.upi_id)}&pn=${encodeURIComponent(s.business_name)}&am=${b.total}&tn=${b.bill_no}&cu=INR`
-    : `${b.bill_no}|${b.total}|${s?.gst_number ?? ""}`;
+  const h = b.hotels;
+  const upiId = h?.upi_id ?? s?.upi_id;
+  const gstin = h?.gst_number ?? s?.gst_number;
+  const upi = upiId
+    ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(h?.name ?? s?.business_name ?? "")}&am=${b.total}&tn=${b.bill_no}&cu=INR`
+    : `${b.bill_no}|${b.total}|${gstin ?? ""}`;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -35,13 +38,14 @@ function BillView() {
         <Button variant="outline" asChild><Link to="/app/bills"><ArrowLeft /> Bills</Link></Button>
         <Button variant="neon" onClick={() => window.print()}><Printer /> Print bill</Button>
       </div>
-      <div className="print-area rounded-3xl bg-foreground p-8 text-background">
-        <div className="flex items-start justify-between border-b border-background/20 pb-4">
+      <div className="print-area rounded-3xl border bg-card p-8 shadow-card">
+        <div className="flex items-start justify-between border-b border-border pb-4">
           <div>
             <div className="font-display text-2xl font-bold">{s?.business_name}</div>
             <div className="text-sm">{b.hotels?.name}</div>
-            <div className="text-xs opacity-70">{b.hotels?.address} {b.hotels?.phone && `· ${b.hotels.phone}`}</div>
-            {s?.gst_number && <div className="mt-1 text-xs font-semibold">GSTIN: {s.gst_number}</div>}
+            <div className="text-xs opacity-70">{h?.address}{h?.city && `, ${h.city}`}{h?.pincode && ` - ${h.pincode}`} {h?.phone && `· ${h.phone}`}</div>
+            {h?.state && <div className="text-xs opacity-70">State: {h.state}</div>}
+            {gstin && <div className="mt-1 text-xs font-semibold">GSTIN: {gstin}</div>}
           </div>
           <div className="text-right text-sm">
             <div className="font-display font-bold">TAX INVOICE</div>
@@ -72,12 +76,12 @@ function BillView() {
             <L k={`SGST @ ${b.sgst_rate}%`} v={inr(Number(b.sgst))} />
           </tbody>
         </table>
-        <div className="mt-3 flex items-end justify-between border-t border-background/20 pt-4">
+        <div className="mt-3 flex items-end justify-between border-t border-border pt-4">
           <div>
             <div className="text-xs opacity-60">Grand total · {b.payment_mode}</div>
             <div className="font-display text-3xl font-bold">{inr(Number(b.total))}</div>
           </div>
-          <div className="rounded-xl bg-background p-2"><QRCodeSVG value={upi} size={96} /></div>
+          <div className="rounded-xl border bg-card p-2"><QRCodeSVG value={upi} size={96} /></div>
         </div>
         <p className="mt-6 text-center text-xs opacity-60">Thank you for staying with us! Scan QR to pay / verify.</p>
       </div>
@@ -86,5 +90,5 @@ function BillView() {
 }
 
 function L({ k, v }: { k: string; v: string }) {
-  return <tr className="border-b border-background/10"><td className="py-2">{k}</td><td className="py-2 text-right">{v}</td></tr>;
+  return <tr className="border-b border-border"><td className="py-2">{k}</td><td className="py-2 text-right">{v}</td></tr>;
 }

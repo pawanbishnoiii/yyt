@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppBookRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppGuestsRouteImport } from './routes/_authenticated/app.guests'
 import { Route as AuthenticatedAppRoomsRouteImport } from './routes/_authenticated/app.rooms'
 import { Route as AuthenticatedAppScanRouteImport } from './routes/_authenticated/app.scan'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppBillIdRouteImport } from './routes/_authenticated/app.bill.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -82,6 +83,12 @@ const AuthenticatedAppScanRoute = AuthenticatedAppScanRouteImport.update({
   path: '/scan',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBillIdRoute = AuthenticatedAppBillIdRouteImport.update({
   id: '/bill/$id',
   path: '/bill/$id',
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/app/guests': typeof AuthenticatedAppGuestsRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -112,6 +120,7 @@ export interface FileRoutesByTo {
   '/app/guests': typeof AuthenticatedAppGuestsRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -128,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/app/guests': typeof AuthenticatedAppGuestsRoute
   '/_authenticated/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/_authenticated/app/scan': typeof AuthenticatedAppScanRoute
+  '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/app/guests'
     | '/app/rooms'
     | '/app/scan'
+    | '/app/settings'
     | '/app/'
     | '/app/bill/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/app/guests'
     | '/app/rooms'
     | '/app/scan'
+    | '/app/settings'
     | '/app'
     | '/app/bill/$id'
   id:
@@ -172,6 +184,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/guests'
     | '/_authenticated/app/rooms'
     | '/_authenticated/app/scan'
+    | '/_authenticated/app/settings'
     | '/_authenticated/app/'
     | '/_authenticated/app/bill/$id'
   fileRoutesById: FileRoutesById
@@ -268,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppScanRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/bill/$id': {
       id: '/_authenticated/app/bill/$id'
       path: '/bill/$id'
@@ -285,6 +305,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppGuestsRoute: typeof AuthenticatedAppGuestsRoute
   AuthenticatedAppRoomsRoute: typeof AuthenticatedAppRoomsRoute
   AuthenticatedAppScanRoute: typeof AuthenticatedAppScanRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppBillIdRoute: typeof AuthenticatedAppBillIdRoute
 }
@@ -296,6 +317,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppGuestsRoute: AuthenticatedAppGuestsRoute,
   AuthenticatedAppRoomsRoute: AuthenticatedAppRoomsRoute,
   AuthenticatedAppScanRoute: AuthenticatedAppScanRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppBillIdRoute: AuthenticatedAppBillIdRoute,
 }
