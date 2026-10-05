@@ -8,6 +8,7 @@ import { useMe } from "@/lib/me";
 import { PageTitle } from "@/components/NoHotel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RoomIssuePanel } from "@/components/RoomIssues";
 import clayScan from "@/assets/clay-scan.png";
 
 export const Route = createFileRoute("/_authenticated/app/scan")({ component: Scan });
@@ -101,7 +102,7 @@ function Scan() {
           </div>
           <div className="mt-4 grid gap-2">
             <Input placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
-            <Input type="number" placeholder="Amount ₹ (food / supplies — bill me add hoga)" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <Input type="number" placeholder="Amount ₹ (food / supplies — added to the bill)" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {actions.map((a) => (
@@ -112,6 +113,7 @@ function Scan() {
               </motion.button>
             ))}
           </div>
+          <div className="mt-6 border-t pt-4"><RoomIssuePanel room={room} hotelId={room.hotel_id} /></div>
         </motion.div>
       )}
     </div>
