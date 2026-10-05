@@ -58,7 +58,16 @@ function AuthPage() {
         else toast.success("Check your inbox and click the confirmation link to continue.");
       }
     } catch (e2) {
-      setErr((e2 as Error).message);
+      const raw = (e2 as Error).message ?? "";
+      if (/invalid_string|Invalid email/i.test(raw)) {
+        setErr("This email address is not accepted. Please check for typos and use a full address like name@hotel.com");
+      } else if (/Invalid login credentials/i.test(raw)) {
+        setErr("Wrong email or password. Please try again.");
+      } else if (/Email not confirmed/i.test(raw)) {
+        setErr("Please confirm your email first — open the link we sent to your inbox.");
+      } else {
+        setErr(raw || "Something went wrong. Please try again.");
+      }
     } finally {
       setBusy(false);
     }
