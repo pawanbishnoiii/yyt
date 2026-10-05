@@ -238,7 +238,7 @@ function Fields() {
     if (error) return toast.error(error.message);
     setF({ label: "", field_type: "text", options: "", required: false }); qc.invalidateQueries();
   };
-  const upd = async (id: string, patch: Record<string, unknown>) => { await supabase.from("onboarding_fields").update(patch).eq("id", id); qc.invalidateQueries(); };
+  const upd = async (id: string, patch: { required?: boolean; enabled?: boolean }) => { await supabase.from("onboarding_fields").update(patch).eq("id", id); qc.invalidateQueries(); };
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className={card + " space-y-3"}>
