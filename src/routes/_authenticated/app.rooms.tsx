@@ -7,6 +7,7 @@ import Barcode from "react-barcode";
 import { Plus, Printer, LogOut, Sparkles, Wrench, BedDouble, Barcode as BarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, isManager, useHotel, useLive, useMe } from "@/lib/me";
+import { RoomConditions } from "@/components/RoomIssues";
 import { checkoutBooking } from "@/lib/checkout";
 import { NoHotel, PageTitle } from "@/components/NoHotel";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ function Rooms() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const mgr = isManager(me);
-  useLive(["rooms", "bookings"], [["rooms", hotelId ?? ""]]);
+  useLive(["rooms", "bookings", "room_issues"], [["rooms", hotelId ?? ""]]);
   const [filter, setFilter] = useState("all");
   const [labels, setLabels] = useState(false);
 
@@ -38,11 +39,12 @@ function Rooms() {
     queryKey: ["rooms", hotelId ?? ""],
     enabled: !!hotelId,
     queryFn: async () => {
-      const [r, b] = await Promise.all([
+      const [r, b, iss] = await Promise.all([
         supabase.from("rooms").select("*").eq("hotel_id", hotelId!).order("number"),
         supabase.from("bookings").select("id,room_id,booking_code,check_in,guests(first_name,last_name,mobile)").eq("hotel_id", hotelId!).eq("status", "checked_in"),
+        supabase.from("room_issues").select("room_id,severity").eq("hotel_id", hotelId!).eq("resolved", false),
       ]);
-      return { rooms: r.data ?? [], active: b.data ?? [] };
+      return { rooms: r.data ?? [], active: b.data ?? [], issues: iss.data ?? [] };
     },
   });
   if (!hotelId) return <NoHotel />;
@@ -69,7 +71,7 @@ function Rooms() {
         </div>
         <div className="print-area grid grid-cols-2 gap-4 md:grid-cols-3">
           {(data?.rooms ?? []).map((r) => (
-            <div key={r.id} className="rounded-xl bg-foreground p-4 text-center text-background">
+            <div key={r.id} className="rounded-xl border bg-card p-4 text-center">
               <div className="font-display text-lg font-bold">Room {r.number}</div>
               <div className="flex justify-center"><Barcode value={r.barcode} height={50} width={1.4} fontSize={12} background="transparent" /></div>
             </div>
@@ -93,6 +95,7 @@ function Rooms() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {rooms.map((r, i) => {
           const bk = data?.active.find((b) => b.room_id === r.id);
+          const iss = (data?.issues ?? []).filter((x) => x.room_id === r.id);
           return (
             <motion.div layout key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
               className={`rounded-3xl border p-5 ${tone[r.status] ?? ""}`}>
@@ -101,15 +104,21 @@ function Rooms() {
                   <div className="font-display text-2xl font-bold">{r.number}</div>
                   <div className="text-xs text-muted-foreground">{r.room_type} · {inr(Number(r.price))}</div>
                 </div>
-                <span className="rounded-full bg-background/60 px-2.5 py-1 text-xs capitalize">{r.status}</span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-full bg-card px-2.5 py-1 text-xs capitalize">{r.status}</span>
+                  <RoomConditions room={r} hotelId={hotelId} trigger={
+                    <button className={`rounded-full px-2.5 py-1 text-xs font-medium ${iss.length ? (iss.some((x) => x.severity === "high") ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning") : "bg-success/15 text-success"}`}>
+                      {iss.length ? `${iss.length} issue${iss.length > 1 ? "s" : ""}` : "Good condition"}
+                    </button>} />
+                </div>
               </div>
               {bk && (
-                <div className="mt-3 rounded-2xl bg-background/50 p-3 text-sm">
+                <div className="mt-3 rounded-2xl bg-card/70 p-3 text-sm">
                   <div className="font-medium">{bk.guests?.first_name} {bk.guests?.last_name}</div>
                   <div className="text-xs text-muted-foreground">{bk.booking_code} · {bk.guests?.mobile}</div>
                 </div>
               )}
-              <div className="mt-3 rounded-xl bg-foreground p-1 text-center"><Barcode value={r.barcode} height={28} width={1} fontSize={10} background="transparent" margin={2} /></div>
+              <div className="mt-3 rounded-xl bg-card p-1 text-center"><Barcode value={r.barcode} height={28} width={1} fontSize={10} background="transparent" margin={2} /></div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {bk && mgr && <Button size="sm" variant="neon" onClick={() => checkout(bk.id)}><LogOut /> Check-out & bill</Button>}
                 {r.status === "available" && mgr && <Button size="sm" variant="outline" onClick={() => nav({ to: "/app/book" })}><BedDouble /> Book</Button>}

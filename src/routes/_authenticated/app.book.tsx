@@ -73,7 +73,7 @@ function Booking() {
 
   const doLookup = async () => {
     const q = lookup.trim();
-    if (!/^\d{10}$|^\d{12}$/.test(q)) return toast.error("10-digit mobile ya 12-digit Aadhaar daalo");
+    if (!/^\d{10}$|^\d{12}$/.test(q)) return toast.error("Enter a 10-digit mobile or 12-digit Aadhaar");
     const col = q.length === 10 ? "mobile" : "aadhaar";
     const { data } = await supabase.from("guests").select("*").eq(col, q).maybeSingle();
     if (data) {
@@ -83,11 +83,11 @@ function Booking() {
         address: data.address ?? "", interests: data.interests ?? [], extra: (data.extra as Record<string, string>) ?? {},
       });
       setFound(true);
-      toast.success(`Welcome back ${data.first_name}! Data fetch ho gaya.`);
+      toast.success(`Welcome back ${data.first_name}! Details loaded.`);
     } else {
       setGuest({ ...emptyGuest, [col]: q });
       setFound(false);
-      toast.info("Naya guest — details bharo");
+      toast.info("New guest — please fill in details");
     }
   };
 
@@ -227,7 +227,7 @@ function Booking() {
                     <div className="mt-1 text-sm font-semibold">{inr(Number(r.price))}<span className="text-xs text-muted-foreground">/night</span></div>
                   </motion.button>
                 ))}
-                {!rooms?.length && <p className="col-span-full text-sm text-muted-foreground">Koi available room nahi. Rooms page par room add karo.</p>}
+                {!rooms?.length && <p className="col-span-full text-sm text-muted-foreground">No rooms available. Add rooms from the Rooms page.</p>}
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <F label="Nights"><Input type="number" min={1} value={nights} onChange={(e) => setNights(Math.max(1, Number(e.target.value)))} /></F>
@@ -267,7 +267,7 @@ function Booking() {
         {step < 2 ? (
           <Button variant="neon" disabled={step === 0 && found === null} onClick={() => {
             if (step === 0 && !validateGuest()) return;
-            if (step === 1 && !roomId) return toast.error("Room select karo");
+            if (step === 1 && !roomId) return toast.error("Please select a room");
             setStep(step + 1);
           }}>Next <ArrowRight /></Button>
         ) : (

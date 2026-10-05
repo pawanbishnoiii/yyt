@@ -8,6 +8,7 @@ import { useMe } from "@/lib/me";
 import { PageTitle } from "@/components/NoHotel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RoomIssuePanel } from "@/components/RoomIssues";
 import clayScan from "@/assets/clay-scan.png";
 
 export const Route = createFileRoute("/_authenticated/app/scan")({ component: Scan });
@@ -32,7 +33,7 @@ function Scan() {
 
   const find = async (code: string) => {
     const { data } = await supabase.from("rooms").select("id,number,hotel_id,status,room_type").eq("barcode", code.trim()).maybeSingle();
-    if (!data) return toast.error("Room nahi mila: " + code);
+    if (!data) return toast.error("Room not found: " + code);
     setRoom(data);
     if (navigator.vibrate) navigator.vibrate(80);
   };
@@ -52,7 +53,7 @@ function Scan() {
           find(text);
         }, () => {});
       } catch (e) {
-        toast.error("Camera nahi khula: " + (e as Error).message);
+        toast.error("Could not open camera: " + (e as Error).message);
         setScanning(false);
       }
     })();
@@ -73,7 +74,7 @@ function Scan() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <PageTitle title="Scan room" sub="Room ka barcode scan karo aur service update karo" />
+      <PageTitle title="Scan room" sub="Scan a room barcode to log service or report an issue" />
       {!room && (
         <div className="rounded-3xl border bg-card shadow-card p-6 text-center">
           {scanning ? (
@@ -85,7 +86,7 @@ function Scan() {
             <Camera /> {scanning ? "Stop camera" : "Start scanning"}
           </Button>
           <div className="mt-4 flex gap-2">
-            <Input placeholder="Ya barcode type karo (RM...)" value={manual} onChange={(e) => setManual(e.target.value.toUpperCase())} />
+            <Input placeholder="Or type the barcode (RM...)" value={manual} onChange={(e) => setManual(e.target.value.toUpperCase())} />
             <Button variant="outline" onClick={() => find(manual)}><Keyboard /></Button>
           </div>
         </div>
@@ -101,7 +102,7 @@ function Scan() {
           </div>
           <div className="mt-4 grid gap-2">
             <Input placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
-            <Input type="number" placeholder="Amount ₹ (food / supplies — bill me add hoga)" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <Input type="number" placeholder="Amount ₹ (food / supplies — added to the bill)" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {actions.map((a) => (
@@ -112,6 +113,7 @@ function Scan() {
               </motion.button>
             ))}
           </div>
+          <div className="mt-6 border-t pt-4"><RoomIssuePanel room={room} hotelId={room.hotel_id} /></div>
         </motion.div>
       )}
     </div>

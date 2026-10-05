@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppBillsRouteImport } from './routes/_authenticated/app.bills'
@@ -20,6 +21,7 @@ import { Route as AuthenticatedAppBookRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppGuestsRouteImport } from './routes/_authenticated/app.guests'
 import { Route as AuthenticatedAppRoomsRouteImport } from './routes/_authenticated/app.rooms'
 import { Route as AuthenticatedAppScanRouteImport } from './routes/_authenticated/app.scan'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppBillIdRouteImport } from './routes/_authenticated/app.bill.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -39,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
@@ -76,6 +83,12 @@ const AuthenticatedAppScanRoute = AuthenticatedAppScanRouteImport.update({
   path: '/scan',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBillIdRoute = AuthenticatedAppBillIdRouteImport.update({
   id: '/bill/$id',
   path: '/bill/$id',
@@ -86,24 +99,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -113,12 +130,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/bills': typeof AuthenticatedAppBillsRoute
   '/_authenticated/app/book': typeof AuthenticatedAppBookRoute
   '/_authenticated/app/guests': typeof AuthenticatedAppGuestsRoute
   '/_authenticated/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/_authenticated/app/scan': typeof AuthenticatedAppScanRoute
+  '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -128,24 +147,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app'
+    | '/onboarding'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
     | '/app/guests'
     | '/app/rooms'
     | '/app/scan'
+    | '/app/settings'
     | '/app/'
     | '/app/bill/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/onboarding'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
     | '/app/guests'
     | '/app/rooms'
     | '/app/scan'
+    | '/app/settings'
     | '/app'
     | '/app/bill/$id'
   id:
@@ -154,12 +177,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/app'
+    | '/_authenticated/onboarding'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/bills'
     | '/_authenticated/app/book'
     | '/_authenticated/app/guests'
     | '/_authenticated/app/rooms'
     | '/_authenticated/app/scan'
+    | '/_authenticated/app/settings'
     | '/_authenticated/app/'
     | '/_authenticated/app/bill/$id'
   fileRoutesById: FileRoutesById
@@ -198,6 +223,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/': {
@@ -249,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppScanRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/bill/$id': {
       id: '/_authenticated/app/bill/$id'
       path: '/bill/$id'
@@ -266,6 +305,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppGuestsRoute: typeof AuthenticatedAppGuestsRoute
   AuthenticatedAppRoomsRoute: typeof AuthenticatedAppRoomsRoute
   AuthenticatedAppScanRoute: typeof AuthenticatedAppScanRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppBillIdRoute: typeof AuthenticatedAppBillIdRoute
 }
@@ -277,6 +317,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppGuestsRoute: AuthenticatedAppGuestsRoute,
   AuthenticatedAppRoomsRoute: AuthenticatedAppRoomsRoute,
   AuthenticatedAppScanRoute: AuthenticatedAppScanRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppBillIdRoute: AuthenticatedAppBillIdRoute,
 }
@@ -286,10 +327,12 @@ const AuthenticatedAppRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -58,7 +58,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "NeonStay — Hotel Chain Management" },
+      { title: "StayOS — Hotel Chain Management" },
       { name: "description", content: "Multi-branch hotel management with GST billing, barcodes and live updates." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
