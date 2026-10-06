@@ -11,6 +11,7 @@ import { STATES } from "./onboarding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({ component: Settings });
@@ -57,8 +58,15 @@ function Settings() {
   const seed = async () => {
     const { error } = await supabase.rpc("seed_demo", { _hotel: hotelId });
     if (error) return toast.error(error.message);
+    await supabase.rpc("mark_demo_loaded", { _hotel: hotelId });
     toast.success("Demo guests, stays, bills and room issues added"); qc.invalidateQueries();
   };
+  const toggle = async (patch: Record<string, unknown>) => {
+    const { error } = await supabase.from("hotels").update(patch as never).eq("id", hotelId);
+    if (error) return toast.error(error.message);
+    toast.success("Saved"); qc.invalidateQueries({ queryKey: ["hotel", hotelId] });
+  };
+  const h = data as unknown as { checkout_time: string; checkout_time_enabled: boolean; id_upload_enabled: boolean; service_items: string[]; demo_loaded: boolean; wifi_name: string | null; wifi_password: string | null };
   const inp = (k: keyof F, l: string, ph?: string) => (
     <div className="space-y-1.5"><Label>{l}</Label><Input value={f[k]} placeholder={ph} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>
   );
@@ -84,12 +92,41 @@ function Settings() {
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Total GST on new bills: {Number(f.cgst_rate) + Number(f.sgst_rate)}%.</p>
         </Panel>
-        <Panel title="Demo data">
+        <Panel title="Stay rules & room service">
+          <div className="space-y-4 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div><div className="font-medium">Fixed check-out time</div><p className="text-muted-foreground">Bookings end at this time on the last day.</p></div>
+              <div className="flex items-center gap-3">
+                <Input type="time" className="w-32" defaultValue={h.checkout_time?.slice(0, 5)} onBlur={(e) => e.target.value && toggle({ checkout_time: e.target.value })} disabled={!h.checkout_time_enabled} />
+                <Switch checked={h.checkout_time_enabled} onCheckedChange={(v) => toggle({ checkout_time_enabled: v })} />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 border-t pt-4">
+              <div><div className="font-medium">Ask for guest ID upload</div><p className="text-muted-foreground">Show the ID photo step during new bookings.</p></div>
+              <Switch checked={h.id_upload_enabled} onCheckedChange={(v) => toggle({ id_upload_enabled: v })} />
+            </div>
+            <div className="border-t pt-4">
+              <div className="font-medium">Room service tasks</div>
+              <p className="mb-2 text-muted-foreground">Turn on the services guests can request.</p>
+              <div className="flex flex-wrap gap-2">
+                {["cleaning", "towels", "laundry", "AC", "Wi-Fi", "TV", "Plumbing", "wake-up call"].map((k) => {
+                  const on = (h.service_items ?? []).includes(k);
+                  return <button key={k} onClick={() => toggle({ service_items: on ? h.service_items.filter((x) => x !== k) : [...(h.service_items ?? []), k] })} className={`rounded-full border px-3 py-1 capitalize transition ${on ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground"}`}>{k}</button>;
+                })}
+              </div>
+            </div>
+            <div className="grid gap-3 border-t pt-4 sm:grid-cols-2">
+              <div className="space-y-1.5"><Label>Guest Wi-Fi name</Label><Input defaultValue={h.wifi_name ?? ""} onBlur={(e) => toggle({ wifi_name: e.target.value || null })} /></div>
+              <div className="space-y-1.5"><Label>Guest Wi-Fi password</Label><Input defaultValue={h.wifi_password ?? ""} onBlur={(e) => toggle({ wifi_password: e.target.value || null })} /></div>
+            </div>
+          </div>
+        </Panel>
+        {!h.demo_loaded && <Panel title="Demo data">
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
             <p className="text-muted-foreground">Fill this branch with sample guests, in-house stays, past invoices and room issues to explore the app.</p>
             <Button variant="outline" onClick={seed}><Database /> Load demo data</Button>
           </div>
-        </Panel>
+        </Panel>}
       </div>
     </div>
   );
