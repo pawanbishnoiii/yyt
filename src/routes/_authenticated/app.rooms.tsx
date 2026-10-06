@@ -36,6 +36,7 @@ function Rooms() {
   useLive(["rooms", "bookings", "room_issues"], [["rooms", hotelId ?? ""]]);
   const [filter, setFilter] = useState("all");
   const [labels, setLabels] = useState(false);
+  const [co, setCo] = useState<string | null>(null);
 
   const { data } = useQuery({
     queryKey: ["rooms", hotelId ?? ""],
@@ -56,7 +57,6 @@ function Rooms() {
     const { error } = await supabase.from("rooms").update({ status }).eq("id", id);
     if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["rooms"] });
   };
-  const [co, setCo] = useState<string | null>(null);
   const checkout = (id: string) => setCo(id);
 
   if (labels)

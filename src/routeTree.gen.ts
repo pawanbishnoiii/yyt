@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRoomServiceRouteImport } from './routes/_authenticated/RoomService'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedFoodRouteImport } from './routes/_authenticated/food'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
@@ -45,9 +47,20 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoomServiceRoute =
+  AuthenticatedRoomServiceRouteImport.update({
+    id: '/RoomService',
+    path: '/RoomService',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFoodRoute = AuthenticatedFoodRouteImport.update({
+  id: '/food',
+  path: '/food',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
@@ -140,7 +153,9 @@ const AuthenticatedAppRoomIdRoute = AuthenticatedAppRoomIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/RoomService': typeof AuthenticatedRoomServiceRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/food': typeof AuthenticatedFoodRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stay/': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
@@ -162,6 +177,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/RoomService': typeof AuthenticatedRoomServiceRoute
+  '/food': typeof AuthenticatedFoodRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stay': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
@@ -185,7 +202,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/RoomService': typeof AuthenticatedRoomServiceRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/food': typeof AuthenticatedFoodRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/stay/': typeof StayIndexRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
@@ -209,7 +228,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/RoomService'
     | '/app'
+    | '/food'
     | '/onboarding'
     | '/stay/'
     | '/app/admin'
@@ -231,6 +252,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/RoomService'
+    | '/food'
     | '/onboarding'
     | '/stay'
     | '/app/admin'
@@ -253,7 +276,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/RoomService'
     | '/_authenticated/app'
+    | '/_authenticated/food'
     | '/_authenticated/onboarding'
     | '/stay/'
     | '/_authenticated/app/admin'
@@ -305,11 +330,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/RoomService': {
+      id: '/_authenticated/RoomService'
+      path: '/RoomService'
+      fullPath: '/RoomService'
+      preLoaderRoute: typeof AuthenticatedRoomServiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/food': {
+      id: '/_authenticated/food'
+      path: '/food'
+      fullPath: '/food'
+      preLoaderRoute: typeof AuthenticatedFoodRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -470,12 +509,16 @@ const AuthenticatedAppRouteWithChildren =
   AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedRoomServiceRoute: typeof AuthenticatedRoomServiceRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedFoodRoute: typeof AuthenticatedFoodRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedRoomServiceRoute: AuthenticatedRoomServiceRoute,
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedFoodRoute: AuthenticatedFoodRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
 }
 

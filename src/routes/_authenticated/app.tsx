@@ -12,6 +12,8 @@ import { HotelProvider, isAdmin, isManager, useHotel, useLive, useMe } from "@/l
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { KeyboardTips } from "@/components/KeyboardTips";
+import { toast } from "sonner";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -25,6 +27,8 @@ function AppLayout() {
   if (!me) return null;
   if (!me.onboarded && !isAdmin(me) && me.roles.length === 0) return <Navigate to="/onboarding" />;
   if (me.roles.length === 0) return <Navigate to="/onboarding" />;
+  if (me.roles.length === 1 && me.roles[0] === "staff" && typeof window !== "undefined" && window.location.pathname === "/app")
+    return <Navigate to={me.staff_kind === "food" ? "/food" : "/RoomService"} />;
   return (
     <HotelProvider me={me}>
       <Shell />
@@ -75,9 +79,12 @@ function Shell() {
     ] },
     { title: "Food & service", items: [
       { to: "/app/orders", label: "Guest Orders", icon: ShoppingBag, show: true },
+      { to: "/food", label: "Kitchen Board", icon: ChefHat, show: true },
+      { to: "/RoomService", label: "Room Service", icon: Sparkles, show: true },
       { to: "/app/menu", label: "Menu Studio", icon: UtensilsCrossed, show: mgr },
     ] },
     { title: "Hotel", items: [
+      { to: "/app/staff", label: "Staff & IDs", icon: UserCog, show: mgr },
       { to: "/app/settings", label: "Settings", icon: Settings, show: mgr },
       { to: "/app/admin", label: "Chain Control", icon: ShieldCheck, show: isAdmin(me) },
     ] },
@@ -114,13 +121,6 @@ function Shell() {
             );
           })}
         </nav>
-        {!mini && mgr && (
-          <Link to="/app/book" className="mb-3 block rounded-2xl border border-primary/15 bg-primary/5 p-4 text-center">
-            <div className="mx-auto mb-2 grid size-10 place-items-center rounded-full bg-card text-primary"><Keyboard className="size-5" /></div>
-            <div className="text-sm font-semibold">Keyboard first</div>
-            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">Ctrl K search · Ctrl B sidebar · Enter moves through booking</p>
-          </Link>
-        )}
         <div className={`flex items-center gap-2 rounded-2xl bg-secondary p-2 ${mini ? "justify-center" : ""}`}>
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-foreground text-sm font-semibold text-background">{initials}</span>
           {!mini && <div className="min-w-0 flex-1 text-xs"><div className="truncate font-semibold">{me?.full_name ?? me?.email}</div><div className="capitalize text-muted-foreground">{me?.roles.join(", ")}</div></div>}
@@ -151,6 +151,7 @@ function Shell() {
           </div>
         </header>
         <main className="flex-1 p-4 pb-28 md:p-8 md:pb-8"><Outlet /></main>
+        {mgr && <KeyboardTips />}
         <nav className="no-print fixed inset-x-3 bottom-3 z-40 flex items-center justify-around rounded-2xl border bg-card/95 p-1.5 shadow-[var(--shadow-soft)] backdrop-blur md:hidden">
           {tabs.map((l) => (
             <Link key={l.to} to={l.to} activeOptions={{ exact: l.to === "/app" }} className="flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10px] font-medium text-muted-foreground"
@@ -229,7 +230,15 @@ function SearchBox() {
 function Bells() {
   const { hotelId } = useHotel();
   const [seen, setSeen] = useState(0);
-  useLive(["alerts", "service_logs", "bookings"], [["bells", hotelId ?? ""]]);
+  useLive(["alerts", "service_logs", "bookings", "food_orders", "cleaning_tasks", "room_issues"], [["bells", hotelId ?? ""]]);
+  useEffect(() => {
+    if (!hotelId) return;
+    const ch = supabase.channel("calls-" + hotelId).on("postgres_changes", { event: "INSERT", schema: "public", table: "alerts", filter: `hotel_id=eq.${hotelId}` }, (p) => {
+      const m = (p.new as { message: string; kind: string });
+      if (m.kind === "call") toast.warning(m.message, { duration: 15000 }); else toast(m.message);
+    }).on("postgres_changes", { event: "INSERT", schema: "public", table: "food_orders", filter: `hotel_id=eq.${hotelId}` }, () => toast.success("New food order received")).subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [hotelId]);
   const { data } = useQuery({
     queryKey: ["bells", hotelId ?? ""],
     enabled: !!hotelId,
