@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,11 @@ export function GuestAuthSheet({ open, onOpenChange, reason, onDone }: { open: b
           <SheetDescription className="text-center">Sign in to {reason}. Browsing stays free — no account needed.</SheetDescription>
         </SheetHeader>
         <form onSubmit={submit} noValidate className="mt-4 space-y-3 px-4 pb-6">
+          <Button type="button" variant="outline" className="w-full" size="lg" onClick={async () => {
+            const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+            if (error) setErr(error.message); else { onOpenChange(false); onDone(); }
+          }}><span className="text-lg font-bold text-primary">G</span>Continue with Google</Button>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" /></div>
           <Input type="email" placeholder="you@mail.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
           <Input type="password" placeholder="Password (6+ characters)" value={password} onChange={(e) => setPassword(e.target.value)} />
           {err && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{err}</p>}

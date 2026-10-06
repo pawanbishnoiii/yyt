@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   LayoutDashboard, CalendarPlus, BedDouble, Users, Receipt, ScanLine, Settings, LogOut, Building2,
-  Search, Bell, ShieldCheck, Plus, UtensilsCrossed, Network,
+  Search, Bell, ShieldCheck, Plus, UtensilsCrossed, Maximize2, Minimize2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HotelProvider, isAdmin, isManager, useHotel, useLive, useMe } from "@/lib/me";
@@ -48,6 +48,7 @@ function Shell() {
     queryFn: async () => (await supabase.from("hotels").select("id,name,city").order("name")).data ?? [],
   });
   const mgr = isManager(me);
+  const [full, setFull] = useState(false);
   const links = [
     { to: "/app", label: "Dashboard", icon: LayoutDashboard, show: true },
     { to: "/app/book", label: "New Booking", icon: CalendarPlus, show: mgr },
@@ -55,10 +56,10 @@ function Shell() {
     { to: "/app/guests", label: "Guests", icon: Users, show: mgr },
     { to: "/app/bills", label: "Bills", icon: Receipt, show: mgr },
     { to: "/app/orders", label: "Guest Orders", icon: UtensilsCrossed, show: true },
+    { to: "/app/menu", label: "Menu Studio", icon: UtensilsCrossed, show: mgr },
     { to: "/app/scan", label: "Scan Room", icon: ScanLine, show: true },
     { to: "/app/settings", label: "Hotel Settings", icon: Settings, show: mgr },
-    { to: "/app/chain", label: "Chain", icon: Network, show: isAdmin(me) },
-    { to: "/app/admin", label: "Admin", icon: ShieldCheck, show: isAdmin(me) },
+    { to: "/app/admin", label: "Chain Control", icon: ShieldCheck, show: isAdmin(me) },
   ] as const;
   const hotel = hotels?.find((h) => h.id === hotelId);
 
@@ -100,6 +101,7 @@ function Shell() {
               <span className="size-1.5 animate-pulse rounded-full bg-success" /> Live
             </span>
             {mgr && <Button size="sm" className="rounded-full bg-success text-primary-foreground hover:bg-success/90" asChild><Link to="/app/book"><Plus /> New Booking</Link></Button>}
+            <button className="hidden size-9 place-items-center rounded-full border lg:grid" aria-label="Toggle full screen" onClick={async () => { if (!document.fullscreenElement) { await document.documentElement.requestFullscreen(); setFull(true); } else { await document.exitFullscreen(); setFull(false); } }}>{full ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}</button>
             <Bells />
           </div>
         </header>
