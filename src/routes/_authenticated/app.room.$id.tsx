@@ -2,38 +2,45 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, LogOut, Sparkles, Wrench, Download, Copy, Save } from "lucide-react";
+import { ArrowLeft, LogOut, Sparkles, Wrench, Download, Copy, Save, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import Barcode from "react-barcode";
 import { supabase } from "@/integrations/supabase/client";
-import { inr } from "@/lib/me";
+import { inr, useHotel } from "@/lib/me";
 import { Button } from "@/components/ui/button";
 import { CheckoutDialog } from "@/components/CheckoutDialog";
 
 export const Route = createFileRoute("/_authenticated/app/room/$id")({ component: RoomPage });
 
 function RoomPage() {
-  const { id } = Route.useParams();
+  const { id: param } = Route.useParams();
+  const { hotelId } = useHotel();
   const qc = useQueryClient();
   const [co, setCo] = useState<string | null>(null);
   const [price, setPrice] = useState("");
   const { data } = useQuery({
-    queryKey: ["room", id],
+    queryKey: ["room", param, hotelId],
     queryFn: async () => {
-      const [r, b, i] = await Promise.all([
-        supabase.from("rooms").select("*").eq("id", id).single(),
-        supabase.from("bookings").select("id,booking_code,status,check_in,check_out,guests(first_name,last_name,mobile)").eq("room_id", id).order("check_in", { ascending: false }).limit(10),
+      const isUuid = /^[0-9a-f-]{36}$/i.test(param);
+      const r = isUuid
+        ? await supabase.from("rooms").select("*").eq("id", param).single()
+        : await supabase.from("rooms").select("*").eq("number", param).eq("hotel_id", hotelId ?? "").maybeSingle();
+      const id = r.data?.id ?? "00000000-0000-0000-0000-000000000000";
+      const [b, i] = await Promise.all([
+        supabase.from("bookings").select("id,booking_code,status,check_in,check_out,guests(first_name,last_name,mobile),bills(id)").eq("room_id", id).order("check_in", { ascending: false }).limit(10),
         supabase.from("room_issues").select("id,category,tag,severity").eq("room_id", id).eq("resolved", false),
       ]);
       return { room: r.data, bookings: b.data ?? [], issues: i.data ?? [] };
     },
   });
   const r = data?.room;
-  if (!r) return <p className="text-muted-foreground">Loading room…</p>;
+  if (!data) return <p className="text-muted-foreground">Loading room…</p>;
+  if (!r) return <p className="text-muted-foreground">Room {param} was not found in this hotel.</p>;
+  const id = r.id;
   const active = data.bookings.find((b) => b.status === "checked_in");
   const setStatus = async (status: string) => {
     const { error } = await supabase.from("rooms").update({ status }).eq("id", id);
-    if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["room", id] });
+    if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["room"] });
   };
   const stayUrl = `${window.location.origin}/stay/r/${r.qr_token}`;
   const downloadQr = () => { const svg=document.getElementById("room-qr")?.outerHTML; if(!svg)return; const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));a.download=`room-${r.number}-qr.svg`;a.click();URL.revokeObjectURL(a.href); };
@@ -48,12 +55,13 @@ function RoomPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {active && <Button onClick={() => setCo(active.id)}><LogOut /> Check-out & bill</Button>}
+          {active && (active.bills as { id: string }[] | null)?.[0] && <Button variant="outline" asChild><Link to="/app/bill/$id" params={{ id: (active.bills as { id: string }[])[0].id }}><Printer /> Print bill</Link></Button>}
           {r.status === "cleaning" && <Button variant="outline" onClick={() => setStatus("available")}><Sparkles /> Mark clean</Button>}
           {r.status === "available" && <Button variant="outline" onClick={() => setStatus("maintenance")}><Wrench /> Maintenance</Button>}
           {r.status === "maintenance" && <Button variant="outline" onClick={() => setStatus("available")}>Fixed</Button>}
         </div>
         <div className="mt-6 grid gap-5 border-t pt-5 md:grid-cols-[1fr_auto]">
-          <div><div className="text-sm font-semibold">Room rate</div><div className="mt-2 flex max-w-xs gap-2"><input className="h-10 min-w-0 flex-1 rounded-full border bg-background px-4" type="number" placeholder={String(r.price)} value={price} onChange={e=>setPrice(e.target.value)}/><Button variant="outline" onClick={async()=>{if(!price)return;const {error}=await supabase.from("rooms").update({price:Number(price)}).eq("id",id);if(error)toast.error(error.message);else{toast.success("Room rate updated");qc.invalidateQueries({queryKey:["room",id]});}}}><Save/>Save</Button></div><div className="mt-4 rounded-xl bg-muted p-2"><Barcode value={r.barcode} height={36} width={1.2} background="transparent" /></div></div>
+          <div><div className="text-sm font-semibold">Room rate</div><div className="mt-2 flex max-w-xs gap-2"><input className="h-10 min-w-0 flex-1 rounded-full border bg-background px-4" type="number" placeholder={String(r.price)} value={price} onChange={e=>setPrice(e.target.value)}/><Button variant="outline" onClick={async()=>{if(!price)return;const {error}=await supabase.from("rooms").update({price:Number(price)}).eq("id",id);if(error)toast.error(error.message);else{toast.success("Room rate updated");qc.invalidateQueries({queryKey:["room"]});}}}><Save/>Save</Button></div><div className="mt-4 rounded-xl bg-muted p-2"><Barcode value={r.barcode} height={36} width={1.2} background="transparent" /></div></div>
           <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3"><QRCodeSVG id="room-qr" value={stayUrl} size={112}/><div><div className="text-sm font-semibold">Guest room page</div><p className="max-w-48 truncate text-xs text-muted-foreground">{stayUrl}</p><div className="mt-2 flex gap-1"><Button size="sm" variant="outline" onClick={()=>{navigator.clipboard.writeText(stayUrl);toast.success("Guest link copied");}}><Copy/>Copy</Button><Button size="sm" variant="outline" onClick={downloadQr}><Download/>QR</Button></div></div></div>
         </div>
       </div>
