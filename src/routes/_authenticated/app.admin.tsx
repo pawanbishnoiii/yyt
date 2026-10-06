@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Building2, Users, Percent, Tag, ListChecks, DatabaseBackup, Trash2, Plus, Download, SlidersHorizontal, Activity, BedDouble, IndianRupee } from "lucide-react";
+import { Building2, Users, Percent, Tag, ListChecks, DatabaseBackup, Trash2, Plus, Download, SlidersHorizontal, Activity, BedDouble, IndianRupee, Zap, Trophy, TrendingDown, Play, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdmin, useMe } from "@/lib/me";
 import { createStaffUser } from "@/lib/admin.functions";
@@ -29,7 +29,7 @@ function Admin() {
       <PageTitle title="Chain control" sub="Portfolio, hotels, team, manager access, taxes, offers and automations"><img src={clayAdmin} alt="" width={1024} height={1024} className="h-16 animate-float" /></PageTitle>
       <Tabs defaultValue="portfolio">
         <TabsList className="mb-6 flex h-auto flex-wrap justify-start gap-1 rounded-2xl bg-card p-1">
-          {[["portfolio", Activity, "Overview"], ["hotels", Building2, "Hotels"], ["staff", Users, "Staff"], ["permissions", SlidersHorizontal, "Manager access"], ["tax", Percent, "GST & taxes"], ["offers", Tag, "Offers"], ["fields", ListChecks, "Check-in form"], ["backup", DatabaseBackup, "Backups"]].map(([v, I, l]) => {
+          {[["portfolio", Activity, "Overview"], ["hotels", Building2, "Hotels"], ["staff", Users, "Staff"], ["permissions", SlidersHorizontal, "Manager access"], ["tax", Percent, "GST & taxes"], ["offers", Tag, "Offers"], ["fields", ListChecks, "Check-in form"], ["automations", Zap, "Automations"], ["backup", DatabaseBackup, "Backups"]].map(([v, I, l]) => {
             const Icon = I as typeof Building2;
             return <TabsTrigger key={v as string} value={v as string} className="rounded-xl data-[state=active]:bg-neon"><Icon className="mr-1 size-4" />{l as string}</TabsTrigger>;
           })}
@@ -41,6 +41,7 @@ function Admin() {
         <TabsContent value="tax"><Tax /></TabsContent>
         <TabsContent value="offers"><Offers /></TabsContent>
         <TabsContent value="fields"><Fields /></TabsContent>
+        <TabsContent value="automations"><Automations /></TabsContent>
         <TabsContent value="backup"><Backups /></TabsContent>
       </Tabs>
     </div>
@@ -53,6 +54,63 @@ function Portfolio() {
   const { data } = useQuery({ queryKey: ["chain"], queryFn: async () => (await supabase.rpc("chain_overview")).data ?? [] });
   const totals = (data ?? []).reduce((a, h) => ({ rooms: a.rooms + h.rooms, occupied: a.occupied + h.occupied, revenue: a.revenue + Number(h.revenue) }), { rooms: 0, occupied: 0, revenue: 0 });
   return <div className="space-y-5"><div className="grid gap-4 sm:grid-cols-3">{[[Building2,"Active properties",data?.filter(h=>h.status==="active").length ?? 0],[BedDouble,"Portfolio occupancy",totals.rooms ? `${Math.round(totals.occupied/totals.rooms*100)}%` : "0%"],[IndianRupee,"Revenue · 30 days",`₹${totals.revenue.toLocaleString("en-IN")}`]].map(([I,l,v])=>{const Icon=I as typeof Building2;return <div key={l as string} className={card}><Icon className="size-5 text-primary"/><div className="mt-4 text-2xl font-bold">{v as string}</div><div className="text-sm text-muted-foreground">{l as string}</div></div>})}</div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{data?.map(h=><div key={h.id} className={card}><div className="flex justify-between"><div><b>{h.name}</b><div className="text-sm text-muted-foreground">{h.city || "City not set"}</div></div><span className={`h-fit rounded-full px-2 py-1 text-xs ${h.status==="active"?"bg-success/10 text-success":"bg-destructive/10 text-destructive"}`}>{h.status}</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{width:`${h.rooms?Math.round(h.occupied/h.rooms*100):0}%`}}/></div><div className="mt-2 flex justify-between text-xs text-muted-foreground"><span>{h.occupied}/{h.rooms} occupied</span><span>{h.manager || "Manager unassigned"}</span></div></div>)}</div></div>;
+}
+
+function Insights({ data }: { data: { name: string; rooms: number; occupied: number; revenue: number; rating: number | null }[] }) {
+  if (!data.length) return null;
+  const by = [...data].sort((a, b) => Number(b.revenue) - Number(a.revenue));
+  const { data: alerts } = useQuery({ queryKey: ["chain-alerts"], queryFn: async () => (await supabase.from("alerts").select("id,message,kind,created_at,hotels(name)").order("created_at", { ascending: false }).limit(8)).data ?? [] });
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <div className={card}><Trophy className="size-5 text-warning" /><div className="mt-3 text-sm text-muted-foreground">Top performer</div><div className="text-lg font-bold">{by[0]?.name}</div><div className="text-sm">₹{Number(by[0]?.revenue ?? 0).toLocaleString("en-IN")} · ★ {by[0]?.rating ?? "—"}</div></div>
+      <div className={card}><TrendingDown className="size-5 text-destructive" /><div className="mt-3 text-sm text-muted-foreground">Needs attention</div><div className="text-lg font-bold">{by[by.length - 1]?.name}</div><div className="text-sm">₹{Number(by[by.length - 1]?.revenue ?? 0).toLocaleString("en-IN")} · {by[by.length - 1]?.occupied}/{by[by.length - 1]?.rooms} occupied</div></div>
+      <div className={card}><div className="mb-2 flex items-center gap-2 font-semibold"><Bell className="size-4 text-primary" />Chain alerts</div><div className="max-h-40 space-y-1 overflow-y-auto text-xs">{alerts?.map((a) => <div key={a.id} className="rounded-lg bg-secondary px-2 py-1"><b>{(a.hotels as { name: string } | null)?.name}</b> · {a.message}</div>)}{!alerts?.length && <p className="text-muted-foreground">No alerts.</p>}</div></div>
+    </div>
+  );
+}
+
+const AUTOS: [string, string, string][] = [
+  ["overdue", "Overdue check-out alerts", "Warn when a guest stays past check-out"],
+  ["escalate", "Escalate slow cleaning", "Alert when cleaning waits over 2 hours"],
+  ["daily_refresh", "Daily room refresh", "Create a cleaning task for occupied rooms every morning"],
+  ["low_supply", "Low supply alerts", "Warn when stock drops below minimum"],
+  ["food_sla", "Food order SLA", "Alert when an order isn't accepted in 10 minutes"],
+  ["backup", "Nightly backup", "Save a copy of chain data every night"],
+  ["revenue_summary", "Daily revenue summary", "Post today's revenue to managers at 10 PM"],
+];
+function Automations() {
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["auto-hotels"], queryFn: async () => (await supabase.from("hotels").select("id,name,city,automations" as "*").order("name")).data as unknown as { id: string; name: string; city: string | null; automations: Record<string, boolean> }[] ?? [] });
+  const set = async (id: string, cur: Record<string, boolean>, k: string, v: boolean) => {
+    const { error } = await supabase.from("hotels").update({ automations: { ...cur, [k]: v } } as never).eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("Automation updated"); qc.invalidateQueries({ queryKey: ["auto-hotels"] }); }
+  };
+  const allOn = async (on: boolean) => {
+    for (const h of data ?? []) await supabase.from("hotels").update({ automations: Object.fromEntries(AUTOS.map(([k]) => [k, on])) } as never).eq("id", h.id);
+    toast.success(on ? "All automations on" : "All automations paused"); qc.invalidateQueries({ queryKey: ["auto-hotels"] });
+  };
+  const runNow = async () => {
+    const { error } = await supabase.rpc("run_automations");
+    if (error) toast.error(error.message); else { toast.success("Automations ran — check alerts"); qc.invalidateQueries(); }
+  };
+  return (
+    <div className="space-y-5">
+      <div className={`${card} flex flex-wrap items-center justify-between gap-3`}>
+        <div><div className="flex items-center gap-2 font-bold"><Zap className="size-4 text-primary" />Automation engine</div><p className="text-sm text-muted-foreground">Runs every few minutes for every hotel. Turn rules on or off per branch.</p></div>
+        <div className="flex gap-2"><Button variant="outline" onClick={() => allOn(false)}>Pause all</Button><Button variant="outline" onClick={() => allOn(true)}>Enable all</Button><Button onClick={runNow}><Play /> Run now</Button></div>
+      </div>
+      <div className="grid gap-5 lg:grid-cols-2">
+        {data?.map((h) => (
+          <div key={h.id} className={card}>
+            <h3 className="font-bold">{h.name}</h3><p className="mb-3 text-sm text-muted-foreground">{h.city}</p>
+            <div className="space-y-2">{AUTOS.map(([k, l, d]) => (
+              <label key={k} className="flex items-center justify-between gap-3 rounded-xl border p-3 text-sm"><span><span className="font-medium">{l}</span><span className="block text-xs text-muted-foreground">{d}</span></span><Switch checked={h.automations?.[k] ?? true} onCheckedChange={(v) => set(h.id, h.automations ?? {}, k, v)} /></label>
+            ))}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 const PERMS: [string,string][] = [["bookings","Create bookings"],["checkout","Check-out and bills"],["undo_checkout","Undo check-out"],["room_rates","Edit room prices"],["rooms","Manage rooms"],["menu","Manage menu"],["food_tax","Change food GST"],["staff","Manage staff"],["reviews","View reviews"],["reports","View reports"],["settings","Hotel settings"]];
