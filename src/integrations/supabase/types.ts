@@ -1309,6 +1309,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      guest_auto_link: { Args: { _token: string }; Returns: boolean }
       guest_link_stay: {
         Args: { _booking_code: string; _token: string }
         Returns: boolean
