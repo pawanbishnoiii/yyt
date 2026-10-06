@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   LayoutDashboard, CalendarPlus, BedDouble, Users, Receipt, ScanLine, Settings, LogOut, Building2,
-  Search, Bell, ShieldCheck, Plus, UtensilsCrossed, Maximize2, Minimize2,
+  Search, Bell, ShieldCheck, Plus, UtensilsCrossed, Maximize2, Minimize2, ShoppingBag, Sparkles,
+  ChefHat, UserCog, Keyboard, PanelLeft, Menu,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HotelProvider, isAdmin, isManager, useHotel, useLive, useMe } from "@/lib/me";
@@ -49,75 +50,124 @@ function Shell() {
   });
   const mgr = isManager(me);
   const [full, setFull] = useState(false);
+  const [mini, setMini] = useState(false);
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    setMini(localStorage.getItem("sb-mini") === "1");
+    setNow(new Date());
+    const t = setInterval(() => setNow(new Date()), 30000);
     const sync = () => setFull(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", sync);
-    return () => document.removeEventListener("fullscreenchange", sync);
+    const keys = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "b") { e.preventDefault(); setMini((m) => { localStorage.setItem("sb-mini", m ? "0" : "1"); return !m; }); }
+    };
+    window.addEventListener("keydown", keys);
+    return () => { clearInterval(t); document.removeEventListener("fullscreenchange", sync); window.removeEventListener("keydown", keys); };
   }, []);
-  const links = [
-    { to: "/app", label: "Dashboard", icon: LayoutDashboard, show: true },
-    { to: "/app/book", label: "New Booking", icon: CalendarPlus, show: mgr },
-    { to: "/app/rooms", label: "Rooms", icon: BedDouble, show: true },
-    { to: "/app/guests", label: "Guests", icon: Users, show: mgr },
-    { to: "/app/bills", label: "Bills", icon: Receipt, show: mgr },
-    { to: "/app/orders", label: "Guest Orders", icon: UtensilsCrossed, show: true },
-    { to: "/app/menu", label: "Menu Studio", icon: UtensilsCrossed, show: mgr },
-    { to: "/app/scan", label: "Scan Room", icon: ScanLine, show: true },
-    { to: "/app/settings", label: "Hotel Settings", icon: Settings, show: mgr },
-    { to: "/app/admin", label: "Chain Control", icon: ShieldCheck, show: isAdmin(me) },
+  const groups = [
+    { title: "Front desk", items: [
+      { to: "/app", label: "Overview", icon: LayoutDashboard, show: true },
+      { to: "/app/book", label: "New Booking", icon: CalendarPlus, show: mgr },
+      { to: "/app/rooms", label: "Rooms", icon: BedDouble, show: true },
+      { to: "/app/guests", label: "Guests", icon: Users, show: mgr },
+      { to: "/app/bills", label: "Bills & Payments", icon: Receipt, show: mgr },
+      { to: "/app/scan", label: "Scan Room", icon: ScanLine, show: true },
+    ] },
+    { title: "Food & service", items: [
+      { to: "/app/orders", label: "Guest Orders", icon: ShoppingBag, show: true },
+      { to: "/app/menu", label: "Menu Studio", icon: UtensilsCrossed, show: mgr },
+      { to: "/RoomService", label: "Room Service app", icon: Sparkles, show: true },
+      { to: "/food", label: "Kitchen app", icon: ChefHat, show: true },
+    ] },
+    { title: "Hotel", items: [
+      { to: "/app/staff", label: "Staff", icon: UserCog, show: mgr },
+      { to: "/app/settings", label: "Settings", icon: Settings, show: mgr },
+      { to: "/app/admin", label: "Chain Control", icon: ShieldCheck, show: isAdmin(me) },
+    ] },
   ] as const;
+  const flat = groups.flatMap((g) => g.items.filter((l) => l.show));
   const hotel = hotels?.find((h) => h.id === hotelId);
+  const tabs = flat.filter((l) => ["/app", "/app/book", "/app/rooms", "/app/orders"].includes(l.to));
+  const initials = (me?.full_name ?? me?.email ?? "U").slice(0, 1).toUpperCase();
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="no-print sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-sidebar px-3 py-5 md:flex">
-        <Link to="/" className="mb-8 flex items-center gap-2 px-3 font-display text-lg font-bold">
-          <span className="grid size-8 place-items-center rounded-xl bg-neon text-primary-foreground"><BedDouble className="size-4" /></span>StayOS
-        </Link>
-        <nav className="flex-1 space-y-1">
-          {links.filter((l) => l.show).map((l) => (
-            <Link key={l.to} to={l.to} activeOptions={{ exact: l.to === "/app" }}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
-              activeProps={{ className: "!bg-foreground !text-background" }}>
-              <l.icon className="size-4" />{l.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="rounded-2xl bg-sidebar-accent p-3 text-xs">
-          <div className="truncate font-semibold">{me?.full_name ?? me?.email}</div>
-          <div className="capitalize text-muted-foreground">{me?.roles.join(", ")}</div>
+      <aside className={`no-print sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/70 bg-card py-5 transition-[width] duration-300 md:flex ${mini ? "w-[76px] px-3" : "w-64 px-4"}`}>
+        <div className="mb-6 flex items-center gap-3 px-1">
+          <Link to="/" className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-soft)]"><BedDouble className="size-5" /></Link>
+          {!mini && <div className="min-w-0"><div className="font-display text-lg font-bold leading-tight">StayOS</div><div className="text-[11px] text-muted-foreground">Hotel operating system</div></div>}
         </div>
-        <Button variant="ghost" className="mt-2 justify-start text-destructive" onClick={signOut}><LogOut /> Log out</Button>
+        <nav className="flex-1 space-y-5 overflow-y-auto">
+          {groups.map((g) => {
+            const items = g.items.filter((l) => l.show);
+            if (!items.length) return null;
+            return (
+              <div key={g.title}>
+                {!mini && <div className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">{g.title}</div>}
+                <div className="space-y-0.5">
+                  {items.map((l) => (
+                    <Link key={l.to} to={l.to} activeOptions={{ exact: l.to === "/app" }} title={l.label}
+                      className={`group flex items-center gap-3 rounded-xl py-2.5 text-[13.5px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-foreground ${mini ? "justify-center px-0" : "px-3"}`}
+                      activeProps={{ className: "!bg-primary/10 !text-primary" }}>
+                      <l.icon className="size-[18px] shrink-0" />{!mini && <span className="truncate">{l.label}</span>}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+        {!mini && mgr && (
+          <Link to="/app/book" className="mb-3 block rounded-2xl border border-primary/15 bg-primary/5 p-4 text-center">
+            <div className="mx-auto mb-2 grid size-10 place-items-center rounded-full bg-card text-primary"><Keyboard className="size-5" /></div>
+            <div className="text-sm font-semibold">Keyboard first</div>
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">Ctrl K search · Ctrl B sidebar · Enter moves through booking</p>
+          </Link>
+        )}
+        <div className={`flex items-center gap-2 rounded-2xl bg-secondary p-2 ${mini ? "justify-center" : ""}`}>
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-foreground text-sm font-semibold text-background">{initials}</span>
+          {!mini && <div className="min-w-0 flex-1 text-xs"><div className="truncate font-semibold">{me?.full_name ?? me?.email}</div><div className="capitalize text-muted-foreground">{me?.roles.join(", ")}</div></div>}
+          {!mini && <button onClick={signOut} aria-label="Log out" className="grid size-8 place-items-center rounded-full text-destructive hover:bg-card"><LogOut className="size-4" /></button>}
+        </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b bg-card/90 px-4 py-3 backdrop-blur md:px-8">
-          <Building2 className="hidden size-4 text-primary sm:block" />
+        <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-border/70 bg-card/85 px-4 py-3 backdrop-blur-xl md:px-6">
+          <button className="hidden size-9 place-items-center rounded-xl hover:bg-secondary md:grid" aria-label="Collapse sidebar" onClick={() => setMini((m) => { localStorage.setItem("sb-mini", m ? "0" : "1"); return !m; })}><PanelLeft className="size-[18px]" /></button>
           {isAdmin(me) ? (
             <Select value={hotelId ?? undefined} onValueChange={setHotelId}>
-              <SelectTrigger className="w-48 rounded-full"><SelectValue placeholder="Select hotel" /></SelectTrigger>
+              <SelectTrigger className="h-9 w-44 rounded-xl"><Building2 className="size-4 text-primary" /><SelectValue placeholder="Select hotel" /></SelectTrigger>
               <SelectContent>{hotels?.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}</SelectContent>
             </Select>
           ) : (
-            <span className="truncate font-semibold">{hotel?.name ?? "No hotel assigned"}</span>
+            <span className="truncate text-sm font-semibold">{hotel?.name ?? "No hotel assigned"}</span>
           )}
           <SearchBox />
           <div className="ml-auto flex items-center gap-2">
-            <span className="hidden items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-xs font-medium text-success sm:flex">
+            <span className="hidden items-center gap-1.5 rounded-full bg-success/12 px-3 py-1 text-xs font-medium text-success sm:flex">
               <span className="size-1.5 animate-pulse rounded-full bg-success" /> Live
             </span>
-            {mgr && <Button size="sm" className="rounded-full bg-success text-primary-foreground hover:bg-success/90" asChild><Link to="/app/book"><Plus /> New Booking</Link></Button>}
-            <button className="hidden size-9 place-items-center rounded-full border lg:grid" aria-label="Toggle full screen" onClick={async () => { if (!document.fullscreenElement) { await document.documentElement.requestFullscreen(); setFull(true); } else { await document.exitFullscreen(); setFull(false); } }}>{full ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}</button>
+            {now && <div className="hidden border-l pl-3 text-right text-xs leading-tight xl:block"><div className="font-medium">{now.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div><div className="text-muted-foreground">{now.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}</div></div>}
+            {mgr && <Button size="sm" className="hidden rounded-xl sm:flex" asChild><Link to="/app/book"><Plus /> New Booking</Link></Button>}
+            <button className="hidden size-9 place-items-center rounded-xl border lg:grid" aria-label="Toggle full screen" onClick={async () => { if (!document.fullscreenElement) { await document.documentElement.requestFullscreen(); setFull(true); } else { await document.exitFullscreen(); setFull(false); } }}>{full ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}</button>
             <Bells />
+            <button onClick={signOut} className="grid size-9 place-items-center rounded-xl text-destructive md:hidden" aria-label="Log out"><LogOut className="size-4" /></button>
           </div>
         </header>
-        <nav className="no-print flex gap-1 overflow-x-auto border-b bg-card px-2 py-2 md:hidden">
-          {links.filter((l) => l.show).map((l) => (
-            <Link key={l.to} to={l.to} activeOptions={{ exact: l.to === "/app" }} className="flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs"
-              activeProps={{ className: "bg-foreground text-background" }}><l.icon className="size-3" />{l.label}</Link>
+        <main className="flex-1 p-4 pb-28 md:p-8 md:pb-8"><Outlet /></main>
+        <nav className="no-print fixed inset-x-3 bottom-3 z-40 flex items-center justify-around rounded-2xl border bg-card/95 p-1.5 shadow-[var(--shadow-soft)] backdrop-blur md:hidden">
+          {tabs.map((l) => (
+            <Link key={l.to} to={l.to} activeOptions={{ exact: l.to === "/app" }} className="flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10px] font-medium text-muted-foreground"
+              activeProps={{ className: "!bg-primary/10 !text-primary" }}><l.icon className="size-5" />{l.label.split(" ")[0]}</Link>
           ))}
-          <button onClick={signOut} className="shrink-0 px-3 text-xs text-destructive">Log out</button>
+          <Popover>
+            <PopoverTrigger className="flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px] font-medium text-muted-foreground"><Menu className="size-5" />More</PopoverTrigger>
+            <PopoverContent align="end" side="top" className="w-56 p-1.5">
+              {flat.filter((l) => !tabs.includes(l)).map((l) => (
+                <Link key={l.to} to={l.to} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-secondary"><l.icon className="size-4" />{l.label}</Link>
+              ))}
+            </PopoverContent>
+          </Popover>
         </nav>
-        <main className="flex-1 p-4 md:p-8"><Outlet /></main>
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ function Rooms() {
             <motion.div layout key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
               className={`rounded-3xl border p-5 ${tone[r.status] ?? ""}`}>
               <div className="flex items-start justify-between">
-                <Link to="/app/room/$id" params={{ id: r.id }} className="group">
+                <Link to="/app/room/$id" params={{ id: r.number }} className="group">
                   <div className="font-display text-2xl font-bold group-hover:text-primary">{r.number} <span className="text-xs font-normal text-primary opacity-0 transition group-hover:opacity-100">Open →</span></div>
                   <div className="text-xs text-muted-foreground">{r.room_type} · {inr(Number(r.price))}</div>
                 </Link>

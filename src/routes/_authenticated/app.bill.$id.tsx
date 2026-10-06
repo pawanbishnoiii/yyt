@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
 import { undoCheckout } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
+import { BillPayments } from "@/components/BillPayments";
 
 export const Route = createFileRoute("/_authenticated/app/bill/$id")({ component: BillView });
 
@@ -44,7 +45,7 @@ function BillView() {
           {bk?.status === "checked_out" && bk.check_out && Date.now() - +new Date(bk.check_out) < 3600000 && (
             <Button variant="outline" onClick={async () => {
               if (!confirm("Undo this check-out? The bill will be deleted and the guest goes back to the room.")) return;
-              try { await undoCheckout(bk.id); toast.success("Check-out undone"); qc.invalidateQueries(); nav({ to: "/app/room/$id", params: { id: bk.room_id } }); }
+              try { await undoCheckout(bk.id); toast.success("Check-out undone"); qc.invalidateQueries(); nav({ to: "/app/room/$id", params: { id: bk.rooms?.number ?? bk.room_id } }); }
               catch (e) { toast.error((e as Error).message); }
             }}><Undo2 /> Undo check-out</Button>
           )}
@@ -98,6 +99,7 @@ function BillView() {
         </div>
         <p className="mt-6 text-center text-xs opacity-60">Thank you for staying with us! Scan QR to pay / verify.</p>
       </div>
+      <BillPayments billId={b.id} hotelId={b.hotel_id} total={Number(b.total)} />
     </div>
   );
 }
