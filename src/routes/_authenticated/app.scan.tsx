@@ -31,10 +31,19 @@ function Scan() {
   const [amount, setAmount] = useState("");
   const scannerRef = useRef<{ stop: () => Promise<void> } | null>(null);
 
-  const find = async (code: string) => {
-    const { data } = await supabase.from("rooms").select("id,number,hotel_id,status,room_type").eq("barcode", code.trim()).maybeSingle();
-    if (!data) return toast.error("Room not found: " + code);
-    setRoom(data);
+  // Accepts a room barcode, a guest room QR (…/stay/r/<token>) or a booking code (BK…)
+  const find = async (raw: string) => {
+    const code = raw.trim();
+    const sel = "id,number,hotel_id,status,room_type";
+    const token = code.match(/\/stay\/r\/([^/?#]+)/)?.[1];
+    let q;
+    if (token) q = await supabase.from("rooms").select(sel).eq("qr_token", token).maybeSingle();
+    else if (/^BK/i.test(code)) {
+      const b = await supabase.from("bookings").select("room_id").ilike("booking_code", code).maybeSingle();
+      q = b.data ? await supabase.from("rooms").select(sel).eq("id", b.data.room_id).maybeSingle() : { data: null };
+    } else q = await supabase.from("rooms").select(sel).eq("barcode", code).maybeSingle();
+    if (!q.data) return toast.error("No room found for: " + code);
+    setRoom(q.data);
     if (navigator.vibrate) navigator.vibrate(80);
   };
 

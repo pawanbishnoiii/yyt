@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Barcode from "react-barcode";
+import { QRCodeSVG } from "qrcode.react";
 import { Plus, Printer, LogOut, Sparkles, Wrench, BedDouble, Barcode as BarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, isManager, useHotel, useLive, useMe } from "@/lib/me";
@@ -74,6 +75,10 @@ function Rooms() {
             <div key={r.id} className="rounded-xl border bg-card p-4 text-center">
               <div className="font-display text-lg font-bold">Room {r.number}</div>
               <div className="flex justify-center"><Barcode value={r.barcode} height={50} width={1.4} fontSize={12} background="transparent" /></div>
+              <div className="mt-2 flex flex-col items-center gap-1 border-t pt-2">
+                <QRCodeSVG value={`${window.location.origin}/stay/r/${r.qr_token}`} size={88} />
+                <span className="text-[10px] text-muted-foreground">Guests: scan for room service</span>
+              </div>
             </div>
           ))}
         </div>
