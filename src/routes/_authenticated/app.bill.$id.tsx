@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
 import { undoCheckout } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
+import { BillPayments } from "@/components/BillPayments";
 
 export const Route = createFileRoute("/_authenticated/app/bill/$id")({ component: BillView });
 
@@ -98,6 +99,7 @@ function BillView() {
         </div>
         <p className="mt-6 text-center text-xs opacity-60">Thank you for staying with us! Scan QR to pay / verify.</p>
       </div>
+      <BillPayments billId={b.id} hotelId={b.hotel_id} total={Number(b.total)} />
     </div>
   );
 }
