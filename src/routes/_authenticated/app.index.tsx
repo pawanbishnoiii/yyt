@@ -30,6 +30,8 @@ function Dashboard() {
   useLive(["rooms", "bookings", "service_logs", "room_issues"], [["dash", hotelId ?? ""]]);
   const [roomType, setRoomType] = useState<string>("");
   const [co, setCo] = useState<string | null>(null);
+  const [demoDone, setDemoDone] = useState(false);
+  const { data: demoFlag } = useQuery({ queryKey: ["demo-flag", hotelId], enabled: !!hotelId, queryFn: async () => (await supabase.from("hotels").select("demo_loaded").eq("id", hotelId!).maybeSingle()).data?.demo_loaded ?? false });
 
   const { data, isLoading } = useQuery({
     queryKey: ["dash", hotelId ?? ""],
@@ -115,7 +117,7 @@ function Dashboard() {
             <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM")}</p>
             <h1 className="text-2xl font-bold md:text-3xl">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, {me?.full_name?.split(" ")[0] ?? "there"}</h1>
           </div>
-          {mgr && data.bookings.length === 0 && !demoDone && <Button variant="outline" size="sm" onClick={seed}><Database /> Load demo data</Button>}
+          {mgr && data.bookings.length === 0 && !demoDone && !demoFlag && <Button variant="outline" size="sm" onClick={seed}><Database /> Load demo data</Button>}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
