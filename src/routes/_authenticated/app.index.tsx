@@ -29,6 +29,7 @@ function Dashboard() {
   const mgr = isManager(me);
   useLive(["rooms", "bookings", "service_logs", "room_issues"], [["dash", hotelId ?? ""]]);
   const [roomType, setRoomType] = useState<string>("");
+  const [co, setCo] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["dash", hotelId ?? ""],
