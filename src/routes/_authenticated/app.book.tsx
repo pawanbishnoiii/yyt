@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { z } from "zod";
-import { Search, UserCheck, UserPlus, Check, BedDouble, ArrowLeft, ArrowRight, Zap, Users, CreditCard, Plus, Trash2 } from "lucide-react";
+import { Search, UserCheck, UserPlus, Check, BedDouble, ArrowLeft, ArrowRight, Zap, Users, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, useHotel, useMe } from "@/lib/me";
 import { NoHotel, PageTitle } from "@/components/NoHotel";

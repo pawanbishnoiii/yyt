@@ -4,7 +4,7 @@ import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { inr } from "@/lib/me";
 
-interface OrderItemCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface OrderItemCardProps {
   imageUrl: string;
   title: string;
   details: string[];
@@ -13,12 +13,13 @@ interface OrderItemCardProps extends React.HTMLAttributes<HTMLDivElement> {
   onQuantityChange?: (quantity: number) => void;
   imageAlt?: string;
   veg?: boolean;
+  className?: string;
 }
 
-export function OrderItemCard({ className, imageUrl, title, details, price, quantity = 0, onQuantityChange, imageAlt = "Menu item", veg = true, ...props }: OrderItemCardProps) {
+export function OrderItemCard({ className, imageUrl, title, details, price, quantity = 0, onQuantityChange, imageAlt = "Menu item", veg = true }: OrderItemCardProps) {
   return (
     <motion.div layout initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }}
-      className={cn("group relative flex w-full items-center gap-3 overflow-hidden rounded-3xl border bg-card p-3 shadow-card", className)} {...props}>
+      className={cn("group relative flex w-full items-center gap-3 overflow-hidden rounded-3xl border bg-card p-3 shadow-card", className)}>
       <motion.img src={imageUrl} alt={imageAlt} loading="lazy" className="size-24 shrink-0 rounded-2xl object-cover" whileHover={{ scale: 1.04 }} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2"><span className={`grid size-3.5 place-items-center rounded-sm border-2 ${veg ? "border-success" : "border-destructive"}`}><span className={`size-1.5 rounded-full ${veg ? "bg-success" : "bg-destructive"}`} /></span><h3 className="truncate font-display font-bold">{title}</h3></div>

@@ -6,8 +6,8 @@ import {
   Wrench, Bell, Heart, Check, Search, Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import hero from "@/assets/hero-lobby.jpg";
-import suite from "@/assets/room-suite.jpg";
+import hero from "@/assets/stayos-lobby-2026.jpg";
+import suite from "@/assets/stayos-deluxe-2026.jpg";
 import clayBell from "@/assets/clay-bell.png";
 import clayScan from "@/assets/clay-scan.png";
 import clayBill from "@/assets/clay-bill.png";
@@ -79,27 +79,27 @@ function Landing() {
         </div>
       </nav>
 
-      <section ref={ref} className="relative overflow-hidden bg-soft pb-24 pt-36">
-        <div className="absolute -left-32 top-20 size-96 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute -right-20 top-40 size-96 rounded-full bg-pink/15 blur-3xl" />
-        <div className="relative mx-auto max-w-6xl px-6 text-center">
-          <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-medium shadow-card">
+      <section ref={ref} className="relative min-h-[92vh] overflow-hidden pb-24 pt-36">
+        <motion.img style={{ y }} src={hero} alt="A bright modern hotel lobby managed with StayOS" width={1600} height={1008} className="absolute inset-0 size-full scale-105 object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/65 to-foreground/10" />
+        <div className="relative mx-auto max-w-6xl px-6 text-left text-background">
+          <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground shadow-card">
             <span className="size-2 animate-pulse rounded-full bg-success" /> Built for Indian hotel chains · GST ready
           </motion.span>
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.7 }}
-            className="mx-auto mt-6 max-w-4xl text-5xl font-extrabold leading-[1.05] md:text-7xl">
-            The operating system for your <span className="text-neon">hotel chain.</span>
+            className="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.05] md:text-7xl">
+            StayOS
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Check guests in within seconds, print branch-wise GST invoices, track room conditions and watch every property update live.
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-4 max-w-2xl text-xl text-background/85">
+            A calmer operating system for modern hotel chains. Check in guests, coordinate rooms, serve food and close GST bills in one live workspace.
           </motion.p>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-8 flex flex-wrap justify-center gap-3">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="mt-8 flex flex-wrap gap-3">
             <Button variant="neon" size="lg" asChild><Link to="/auth">Register your hotel <ArrowRight /></Link></Button>
-            <Button variant="outline" size="lg" className="rounded-full" asChild><a href="#features">See how it works</a></Button>
+            <Button variant="outline" size="lg" className="rounded-full border-background/50 bg-background/90 text-foreground" asChild><Link to="/stay">Explore guest app</Link></Button>
           </motion.div>
 
-          <motion.div style={{ y, rotateX: rot }} initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, type: "spring", stiffness: 60 }}
-            className="relative mx-auto mt-16 max-w-5xl [perspective:1200px]">
+          <motion.div style={{ rotateX: rot }} initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, type: "spring", stiffness: 60 }}
+            className="relative mt-14 max-w-5xl [perspective:1200px]">
             <ProductPreview />
             <img src={clayBell} alt="" width={1024} height={1024} style={{ width: 120, height: 120 }} className="absolute -right-10 -top-20 hidden h-28 w-auto animate-float drop-shadow-xl md:block" />
             <img src={clayManager} alt="" width={1024} height={1024} className="absolute -bottom-14 -left-14 hidden h-28 w-auto animate-float drop-shadow-xl md:block" style={{ width: 120, height: 120, animationDelay: "1.5s" }} />
