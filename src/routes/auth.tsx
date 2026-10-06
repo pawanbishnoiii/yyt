@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import clayBell from "@/assets/clay-bell.png";
+import authPhoto from "@/assets/stayos-lobby-2026.jpg";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -29,6 +29,8 @@ const schema = z.object({
 function AuthPage() {
   const nav = useNavigate();
   const [mode, setMode] = useState<"in" | "up">("in");
+  const [tab, setTab] = useState<"email" | "staff">("email");
+  const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -38,6 +40,17 @@ function AuthPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    if (tab === "staff") {
+      if (!/^\d{4}$/.test(code)) { setErr("Staff ID is 4 digits"); return; }
+      if (password.length < 6) { setErr("Enter your password"); return; }
+      setBusy(true);
+      const { data, error } = await supabase.auth.signInWithPassword({ email: `${code}@staff.stayos.local`, password });
+      setBusy(false);
+      if (error || !data.user) { setErr("Wrong Staff ID or password."); return; }
+      const { data: p } = await supabase.from("profiles").select("staff_kind").eq("id", data.user.id).maybeSingle();
+      nav({ to: p?.staff_kind === "food" ? "/food" : "/RoomService" });
+      return;
+    }
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) { setErr(parsed.error.issues[0]?.message ?? "Invalid input"); return; }
     if (mode === "up" && !name.trim()) { setErr("Please enter your full name"); return; }
@@ -76,10 +89,12 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen md:grid-cols-2">
       <div className="relative hidden flex-col items-center justify-center overflow-hidden bg-soft p-10 md:flex">
-        <div className="absolute -left-20 top-10 size-80 rounded-full bg-primary/15 blur-3xl" />
-        <img src={clayBell} alt="" width={1024} height={1024} className="relative w-1/2 animate-float drop-shadow-2xl" />
-        <h2 className="relative mt-6 max-w-sm text-center text-3xl font-bold">Run every branch from one desk.</h2>
-        <p className="relative mt-2 max-w-sm text-center text-muted-foreground">Fast check-in, GST invoices and live room status for your whole chain.</p>
+        <img src={authPhoto} alt="Hotel lobby" className="absolute inset-0 size-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+        <div className="relative mt-auto text-background">
+          <h2 className="max-w-sm text-4xl font-bold">Run every branch from one desk.</h2>
+          <p className="mt-2 max-w-sm opacity-85">Managers sign in with email. Staff sign in with their 4-digit Staff ID.</p>
+        </div>
       </div>
       <div className="flex items-center justify-center p-6">
         <form onSubmit={submit} noValidate className="w-full max-w-sm space-y-5">
@@ -90,14 +105,24 @@ function AuthPage() {
             <h1 className="text-3xl font-bold">{mode === "in" ? "Welcome back" : "Register your hotel"}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{mode === "in" ? "Sign in to your dashboard." : "Create a manager account — you'll set up your hotel next."}</p>
           </div>
+          {mode === "in" && (
+            <div className="grid grid-cols-2 gap-1 rounded-2xl bg-secondary p-1">
+              {(["email", "staff"] as const).map((t) => (
+                <button type="button" key={t} onClick={() => { setTab(t); setErr(null); }} className={`rounded-xl py-2 text-sm font-semibold transition ${tab === t ? "bg-card shadow-card" : "text-muted-foreground"}`}>{t === "email" ? "Email" : "Staff ID"}</button>
+              ))}
+            </div>
+          )}
+          {mode === "in" && tab === "staff" && (
+            <div className="space-y-2"><Label htmlFor="code">Staff ID</Label><Input id="code" inputMode="numeric" autoComplete="username" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="4821" className="h-14 text-center font-mono text-2xl tracking-[0.6em]" /></div>
+          )}
           {mode === "up" && (
             <div className="space-y-2"><Label htmlFor="name">Full name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} placeholder="Rahul Verma" /></div>
           )}
-          <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="manager@hotel.com" /></div>
+          {!(mode === "in" && tab === "staff") && <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="manager@hotel.com" /></div>}
           <div className="space-y-2"><Label htmlFor="pw">Password</Label><Input id="pw" type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" /></div>
           {err && <p role="alert" className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{err}</p>}
           <Button variant="neon" className="w-full" size="lg" disabled={busy}>{busy && <Loader2 className="animate-spin" />}{mode === "in" ? "Sign in" : "Create account"}</Button>
-          <button type="button" className="w-full text-sm text-muted-foreground hover:text-foreground" onClick={() => { setMode(mode === "in" ? "up" : "in"); setErr(null); }}>
+          <button type="button" className="w-full text-sm text-muted-foreground hover:text-foreground" onClick={() => { setMode(mode === "in" ? "up" : "in"); setTab("email"); setErr(null); }}>
             {mode === "in" ? "New hotel? Create an account" : "Already have an account? Sign in"}
           </button>
         </form>
