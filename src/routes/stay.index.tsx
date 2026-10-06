@@ -39,7 +39,7 @@ function Explore() {
           <p className="mt-2 max-w-lg opacity-90">Explore hotels, menus and offers freely. Scan the QR in your room to order food, request cleaning or see your bill.</p>
         </div>
       </div>
-      <div className="mx-auto -mt-8 grid max-w-5xl grid-cols-3 gap-3 px-4">
+      <div className="relative z-10 mx-auto -mt-8 grid max-w-5xl grid-cols-3 gap-3 px-4">
         {[[QrCode, "Scan room QR", "Unlock in-room services"], [Utensils, "Room dining", "Order in two taps"], [Sparkles, "Housekeeping", "Request anytime"]].map(([I, t, s]) => {
           const Icon = I as typeof QrCode;
           return (
