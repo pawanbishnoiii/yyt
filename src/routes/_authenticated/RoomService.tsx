@@ -51,7 +51,7 @@ function Tasks({ hotelId, uid }: { hotelId: string; uid: string }) {
 
   const move = async (t: Task, status: string) => {
     const now = new Date().toISOString();
-    const patch: Record<string, unknown> = { status };
+    const patch: { status: string; accepted_at?: string; assigned_to?: string; started_at?: string; done_at?: string } = { status };
     if (status === "accepted") { patch.accepted_at = now; patch.assigned_to = uid; }
     if (status === "in_progress") patch.started_at = now;
     if (status === "done") patch.done_at = now;
