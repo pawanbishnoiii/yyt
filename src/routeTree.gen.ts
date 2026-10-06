@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppBillsRouteImport } from './routes/_authenticated/app.bills'
@@ -47,6 +48,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const StayIndexRoute = StayIndexRouteImport.update({
+  id: '/stay/',
+  path: '/stay/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay/': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay/': typeof StayIndexRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/bills': typeof AuthenticatedAppBillsRoute
   '/_authenticated/app/book': typeof AuthenticatedAppBookRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/onboarding'
+    | '/stay/'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/stay'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
+    | '/stay/'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/bills'
     | '/_authenticated/app/book'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  StayIndexRoute: typeof StayIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/stay/': {
+      id: '/stay/'
+      path: '/stay'
+      fullPath: '/stay/'
+      preLoaderRoute: typeof StayIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -342,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  StayIndexRoute: StayIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
