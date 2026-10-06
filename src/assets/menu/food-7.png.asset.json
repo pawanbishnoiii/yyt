@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "8989529c-3509-4449-9f7e-891a7f98a736",
-  "project_id": "bedf23ea-ed26-4973-b328-3b5713e5d5a4",
-  "url": "/__l5e/assets-v1/8989529c-3509-4449-9f7e-891a7f98a736/food-7.png",
-  "r2_key": "a/v1/bedf23ea-ed26-4973-b328-3b5713e5d5a4/8989529c-3509-4449-9f7e-891a7f98a736/food-7.png",
-  "original_filename": "food-7.png",
-  "size": 523609,
   "content_type": "image/png",
-  "created_at": "2026-10-06T03:33:58Z"
+  "created_at": "2026-10-06T03:33:58Z",
+  "original_filename": "food-7.png",
+  "project_id": "0cf98f16-3346-4ef7-8ee7-0a0043c50d27",
+  "r2_key": "a/v1/0cf98f16-3346-4ef7-8ee7-0a0043c50d27/8989529c-3509-4449-9f7e-891a7f98a736/food-7.png",
+  "size": 523609,
+  "url": "/__l5e/assets-v1/8989529c-3509-4449-9f7e-891a7f98a736/food-7.png",
+  "version": 1
 }
