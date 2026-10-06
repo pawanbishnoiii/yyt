@@ -11,6 +11,7 @@ export type Me = {
   department_id: string | null;
   mobile: string | null;
   onboarded: boolean;
+  staff_kind: string | null;
   roles: Role[];
 };
 
@@ -24,6 +25,7 @@ export function useMe() {
         supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", u.user.id),
       ]);
+      supabase.rpc("touch_session" as never).then(() => {});
       return {
         id: u.user.id,
         email: u.user.email ?? null,
@@ -32,6 +34,7 @@ export function useMe() {
         department_id: p?.department_id ?? null,
         mobile: p?.mobile ?? null,
         onboarded: !!p?.onboarded,
+        staff_kind: (p as { staff_kind?: string | null } | null)?.staff_kind ?? null,
         roles: (r ?? []).map((x) => x.role as Role),
       };
     },
