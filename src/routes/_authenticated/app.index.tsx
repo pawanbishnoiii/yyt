@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AirVent, Wifi, ShowerHead, Tv, Wrench, Sparkles, LogOut, Tag, Database, CheckCircle2 } from "lucide-react";
+import { AirVent, Wifi, ShowerHead, Tv, Wrench, Sparkles, LogOut, Tag, Database, CheckCircle2, ScanLine, ClipboardCheck, UtensilsCrossed } from "lucide-react";
 import { formatDistanceToNow, format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, isManager, useHotel, useLive, useMe } from "@/lib/me";
@@ -51,6 +51,8 @@ function Dashboard() {
 
   if (!hotelId) return <NoHotel />;
   if (isLoading || !data) return <DashSkeleton />;
+
+  if (!mgr) return <StaffHome name={me?.full_name ?? "Team member"} kind={me?.department_id ? "department" : "operations"} logs={data.logs} />;
 
   const rooms = data.rooms;
   const occ = rooms.filter((r) => r.status === "occupied").length;
@@ -241,6 +243,10 @@ function Dashboard() {
       </div>
     </div>
   );
+}
+
+function StaffHome({name,kind,logs}:{name:string;kind:string;logs:{id:string;kind:string;created_at:string;rooms:{number:string}|null}[]}) {
+  return <div className="mx-auto max-w-3xl space-y-6"><div><p className="text-sm text-muted-foreground">{format(new Date(),"EEEE, d MMMM")}</p><h1 className="text-3xl font-bold">Your shift, {name.split(" ")[0]}</h1><p className="mt-1 text-muted-foreground">Scan a room, complete assigned work and keep every update live.</p></div><Link to="/app/scan" className="group flex min-h-48 items-end overflow-hidden rounded-3xl bg-foreground p-6 text-background shadow-card"><div><span className="grid size-12 place-items-center rounded-2xl bg-primary"><ScanLine/></span><h2 className="mt-8 text-2xl font-bold">Scan room to start</h2><p className="text-sm text-background/70">QR, barcode and booking codes are supported.</p></div></Link><div className="grid grid-cols-2 gap-3">{[[Sparkles,"Cleaning","Complete turnover"],[UtensilsCrossed,"Food","Deliver orders"],[Wrench,"Maintenance","Report issues"],[ClipboardCheck,"Condition check","Daily room check"]].map(([I,t,s])=>{const Icon=I as typeof Sparkles;return <Link key={t as string} to="/app/scan" className="rounded-2xl border bg-card p-4 shadow-card"><Icon className="size-5 text-primary"/><div className="mt-3 font-semibold">{t as string}</div><div className="text-xs text-muted-foreground">{s as string}</div></Link>})}</div><Panel title="Recent team updates"><div className="divide-y">{logs.map(l=><div key={l.id} className="flex justify-between py-3 text-sm"><span>Room {l.rooms?.number} · <span className="capitalize">{l.kind}</span></span><span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(l.created_at),{addSuffix:true})}</span></div>)}</div></Panel></div>;
 }
 
 function Row({ k, v, sub }: { k: string; v: string | number; sub?: string }) {

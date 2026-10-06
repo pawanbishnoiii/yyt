@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, LogOut, Sparkles, Wrench } from "lucide-react";
+import { ArrowLeft, LogOut, Sparkles, Wrench, Download, Copy, Save } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import Barcode from "react-barcode";
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ function RoomPage() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
   const [co, setCo] = useState<string | null>(null);
+  const [price, setPrice] = useState("");
   const { data } = useQuery({
     queryKey: ["room", id],
     queryFn: async () => {
@@ -32,6 +35,8 @@ function RoomPage() {
     const { error } = await supabase.from("rooms").update({ status }).eq("id", id);
     if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["room", id] });
   };
+  const stayUrl = `${window.location.origin}/stay/r/${r.qr_token}`;
+  const downloadQr = () => { const svg=document.getElementById("room-qr")?.outerHTML; if(!svg)return; const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));a.download=`room-${r.number}-qr.svg`;a.click();URL.revokeObjectURL(a.href); };
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <CheckoutDialog bookingId={co} label={`Room ${r.number}`} onOpenChange={(o) => !o && setCo(null)} />
@@ -46,6 +51,10 @@ function RoomPage() {
           {r.status === "cleaning" && <Button variant="outline" onClick={() => setStatus("available")}><Sparkles /> Mark clean</Button>}
           {r.status === "available" && <Button variant="outline" onClick={() => setStatus("maintenance")}><Wrench /> Maintenance</Button>}
           {r.status === "maintenance" && <Button variant="outline" onClick={() => setStatus("available")}>Fixed</Button>}
+        </div>
+        <div className="mt-6 grid gap-5 border-t pt-5 md:grid-cols-[1fr_auto]">
+          <div><div className="text-sm font-semibold">Room rate</div><div className="mt-2 flex max-w-xs gap-2"><input className="h-10 min-w-0 flex-1 rounded-full border bg-background px-4" type="number" placeholder={String(r.price)} value={price} onChange={e=>setPrice(e.target.value)}/><Button variant="outline" onClick={async()=>{if(!price)return;const {error}=await supabase.from("rooms").update({price:Number(price)}).eq("id",id);if(error)toast.error(error.message);else{toast.success("Room rate updated");qc.invalidateQueries({queryKey:["room",id]});}}><Save/>Save</Button></div><div className="mt-4 rounded-xl bg-muted p-2"><Barcode value={r.barcode} height={36} width={1.2} background="transparent" /></div></div>
+          <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3"><QRCodeSVG id="room-qr" value={stayUrl} size={112}/><div><div className="text-sm font-semibold">Guest room page</div><p className="max-w-48 truncate text-xs text-muted-foreground">{stayUrl}</p><div className="mt-2 flex gap-1"><Button size="sm" variant="outline" onClick={()=>{navigator.clipboard.writeText(stayUrl);toast.success("Guest link copied");}}><Copy/>Copy</Button><Button size="sm" variant="outline" onClick={downloadQr}><Download/>QR</Button></div></div></div>
         </div>
       </div>
       {active && <div className="rounded-3xl border bg-card p-5"><div className="text-sm text-muted-foreground">Current guest</div><div className="font-semibold">{active.guests?.first_name} {active.guests?.last_name}</div><div className="text-sm">{active.booking_code} · {active.guests?.mobile}</div></div>}
