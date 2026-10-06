@@ -1,3 +1,4 @@
+import { useMenuImage } from "@/lib/menu-image";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -244,6 +245,6 @@ export function GuestApp({ hotelId, token }: { hotelId?: string; token?: string 
 }
 
 function GuestMenuItem({item,quantity,onChange}:{item:Pub["menu"][number];quantity:number;onChange:(q:number)=>void}){
-  const {data}=useQuery({queryKey:["guest-menu-image",item.image_url],enabled:!!item.image_url,staleTime:50*60_000,queryFn:async()=>(await supabase.storage.from("menu-images").createSignedUrl(item.image_url!,3600)).data?.signedUrl});
+  const data=useMenuImage(item.image_url);
   return <OrderItemCard imageUrl={data??food} title={item.name} details={[item.description||item.category,item.category]} price={item.price} veg={item.veg} quantity={quantity} onQuantityChange={onChange}/>;
 }
