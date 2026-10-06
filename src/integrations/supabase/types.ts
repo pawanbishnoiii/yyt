@@ -559,6 +559,7 @@ export type Database = {
           pincode: string | null
           sgst_rate: number
           state: string | null
+          status: string
           upi_id: string | null
           wifi_name: string | null
           wifi_password: string | null
@@ -576,6 +577,7 @@ export type Database = {
           pincode?: string | null
           sgst_rate?: number
           state?: string | null
+          status?: string
           upi_id?: string | null
           wifi_name?: string | null
           wifi_password?: string | null
@@ -593,6 +595,7 @@ export type Database = {
           pincode?: string | null
           sgst_rate?: number
           state?: string | null
+          status?: string
           upi_id?: string | null
           wifi_name?: string | null
           wifi_password?: string | null
@@ -1107,7 +1110,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_manager: {
+        Args: { _email: string; _hotel: string }
+        Returns: boolean
+      }
       can_hotel: { Args: { _hotel: string }; Returns: boolean }
+      chain_overview: {
+        Args: never
+        Returns: {
+          city: string
+          id: string
+          manager: string
+          name: string
+          occupied: number
+          rating: number
+          revenue: number
+          rooms: number
+          status: string
+        }[]
+      }
       check_offer: {
         Args: { _code: string }
         Returns: {
@@ -1217,6 +1238,23 @@ export type Database = {
       is_member: { Args: never; Returns: boolean }
       is_mgr: { Args: { _hotel: string }; Returns: boolean }
       my_hotel: { Args: never; Returns: string }
+      public_hotel: {
+        Args: { _hotel?: string; _token?: string }
+        Returns: Json
+      }
+      public_hotels: {
+        Args: never
+        Returns: {
+          address: string
+          city: string
+          id: string
+          min_price: number
+          name: string
+          phone: string
+          rating: number
+          rooms: number
+        }[]
+      }
       quick_checkin: {
         Args: { _guest: string; _nights: number; _room: string }
         Returns: string

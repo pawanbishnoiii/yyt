@@ -14,14 +14,19 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppBillsRouteImport } from './routes/_authenticated/app.bills'
 import { Route as AuthenticatedAppBookRouteImport } from './routes/_authenticated/app.book'
+import { Route as AuthenticatedAppChainRouteImport } from './routes/_authenticated/app.chain'
 import { Route as AuthenticatedAppGuestsRouteImport } from './routes/_authenticated/app.guests'
+import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppRoomsRouteImport } from './routes/_authenticated/app.rooms'
 import { Route as AuthenticatedAppScanRouteImport } from './routes/_authenticated/app.scan'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as StayHIdRouteImport } from './routes/stay.h.$id'
+import { Route as StayRTokenRouteImport } from './routes/stay.r.$token'
 import { Route as AuthenticatedAppBillIdRouteImport } from './routes/_authenticated/app.bill.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,6 +53,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const StayIndexRoute = StayIndexRouteImport.update({
+  id: '/stay/',
+  path: '/stay/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -68,9 +78,19 @@ const AuthenticatedAppBookRoute = AuthenticatedAppBookRouteImport.update({
   path: '/book',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppChainRoute = AuthenticatedAppChainRouteImport.update({
+  id: '/chain',
+  path: '/chain',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppGuestsRoute = AuthenticatedAppGuestsRouteImport.update({
   id: '/guests',
   path: '/guests',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppRoomsRoute = AuthenticatedAppRoomsRouteImport.update({
@@ -89,6 +109,16 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const StayHIdRoute = StayHIdRouteImport.update({
+  id: '/stay/h/$id',
+  path: '/stay/h/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayRTokenRoute = StayRTokenRouteImport.update({
+  id: '/stay/r/$token',
+  path: '/stay/r/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppBillIdRoute = AuthenticatedAppBillIdRouteImport.update({
   id: '/bill/$id',
   path: '/bill/$id',
@@ -100,13 +130,18 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay/': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
+  '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/stay/h/$id': typeof StayHIdRoute
+  '/stay/r/$token': typeof StayRTokenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -114,13 +149,18 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay': typeof StayIndexRoute
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
+  '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/stay/h/$id': typeof StayHIdRoute
+  '/stay/r/$token': typeof StayRTokenRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -131,13 +171,18 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/stay/': typeof StayIndexRoute
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/bills': typeof AuthenticatedAppBillsRoute
   '/_authenticated/app/book': typeof AuthenticatedAppBookRoute
+  '/_authenticated/app/chain': typeof AuthenticatedAppChainRoute
   '/_authenticated/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/_authenticated/app/scan': typeof AuthenticatedAppScanRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/stay/h/$id': typeof StayHIdRoute
+  '/stay/r/$token': typeof StayRTokenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/bill/$id': typeof AuthenticatedAppBillIdRoute
 }
@@ -148,13 +193,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/onboarding'
+    | '/stay/'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
+    | '/app/chain'
     | '/app/guests'
+    | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
     | '/app/settings'
+    | '/stay/h/$id'
+    | '/stay/r/$token'
     | '/app/'
     | '/app/bill/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -162,13 +212,18 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/stay'
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
+    | '/app/chain'
     | '/app/guests'
+    | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
     | '/app/settings'
+    | '/stay/h/$id'
+    | '/stay/r/$token'
     | '/app'
     | '/app/bill/$id'
   id:
@@ -178,13 +233,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
+    | '/stay/'
     | '/_authenticated/app/admin'
     | '/_authenticated/app/bills'
     | '/_authenticated/app/book'
+    | '/_authenticated/app/chain'
     | '/_authenticated/app/guests'
+    | '/_authenticated/app/orders'
     | '/_authenticated/app/rooms'
     | '/_authenticated/app/scan'
     | '/_authenticated/app/settings'
+    | '/stay/h/$id'
+    | '/stay/r/$token'
     | '/_authenticated/app/'
     | '/_authenticated/app/bill/$id'
   fileRoutesById: FileRoutesById
@@ -193,6 +253,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  StayIndexRoute: typeof StayIndexRoute
+  StayHIdRoute: typeof StayHIdRoute
+  StayRTokenRoute: typeof StayRTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/stay/': {
+      id: '/stay/'
+      path: '/stay'
+      fullPath: '/stay/'
+      preLoaderRoute: typeof StayIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -260,11 +330,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBookRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/chain': {
+      id: '/_authenticated/app/chain'
+      path: '/chain'
+      fullPath: '/app/chain'
+      preLoaderRoute: typeof AuthenticatedAppChainRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/guests': {
       id: '/_authenticated/app/guests'
       path: '/guests'
       fullPath: '/app/guests'
       preLoaderRoute: typeof AuthenticatedAppGuestsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/orders': {
+      id: '/_authenticated/app/orders'
+      path: '/orders'
+      fullPath: '/app/orders'
+      preLoaderRoute: typeof AuthenticatedAppOrdersRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/rooms': {
@@ -288,6 +372,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/stay/h/$id': {
+      id: '/stay/h/$id'
+      path: '/stay/h/$id'
+      fullPath: '/stay/h/$id'
+      preLoaderRoute: typeof StayHIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stay/r/$token': {
+      id: '/stay/r/$token'
+      path: '/stay/r/$token'
+      fullPath: '/stay/r/$token'
+      preLoaderRoute: typeof StayRTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/bill/$id': {
       id: '/_authenticated/app/bill/$id'
       path: '/bill/$id'
@@ -302,7 +400,9 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRoute
   AuthenticatedAppBillsRoute: typeof AuthenticatedAppBillsRoute
   AuthenticatedAppBookRoute: typeof AuthenticatedAppBookRoute
+  AuthenticatedAppChainRoute: typeof AuthenticatedAppChainRoute
   AuthenticatedAppGuestsRoute: typeof AuthenticatedAppGuestsRoute
+  AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppRoomsRoute: typeof AuthenticatedAppRoomsRoute
   AuthenticatedAppScanRoute: typeof AuthenticatedAppScanRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
@@ -314,7 +414,9 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAdminRoute: AuthenticatedAppAdminRoute,
   AuthenticatedAppBillsRoute: AuthenticatedAppBillsRoute,
   AuthenticatedAppBookRoute: AuthenticatedAppBookRoute,
+  AuthenticatedAppChainRoute: AuthenticatedAppChainRoute,
   AuthenticatedAppGuestsRoute: AuthenticatedAppGuestsRoute,
+  AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppRoomsRoute: AuthenticatedAppRoomsRoute,
   AuthenticatedAppScanRoute: AuthenticatedAppScanRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
@@ -342,6 +444,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  StayIndexRoute: StayIndexRoute,
+  StayHIdRoute: StayHIdRoute,
+  StayRTokenRoute: StayRTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
