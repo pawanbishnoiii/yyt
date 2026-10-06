@@ -8,6 +8,13 @@
       "when": 1791217296354,
       "tag": "0000_room_issues_prefs_automation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791255991747,
+      "tag": "0001_stayos_v2_ecosystem",
+      "breakpoints": true
     }
   ]
 }
