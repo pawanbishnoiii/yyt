@@ -551,8 +551,10 @@ export type Database = {
           cgst_rate: number
           city: string | null
           created_at: string
+          food_gst_rate: number
           gst_number: string | null
           id: string
+          manager_perms: Json
           name: string
           owner_id: string | null
           phone: string | null
@@ -569,8 +571,10 @@ export type Database = {
           cgst_rate?: number
           city?: string | null
           created_at?: string
+          food_gst_rate?: number
           gst_number?: string | null
           id?: string
+          manager_perms?: Json
           name: string
           owner_id?: string | null
           phone?: string | null
@@ -587,8 +591,10 @@ export type Database = {
           cgst_rate?: number
           city?: string | null
           created_at?: string
+          food_gst_rate?: number
           gst_number?: string | null
           id?: string
+          manager_perms?: Json
           name?: string
           owner_id?: string | null
           phone?: string | null
@@ -607,8 +613,10 @@ export type Database = {
           available: boolean
           category: string
           created_at: string
+          description: string | null
           hotel_id: string
           id: string
+          image_url: string | null
           name: string
           price: number
           veg: boolean
@@ -617,8 +625,10 @@ export type Database = {
           available?: boolean
           category?: string
           created_at?: string
+          description?: string | null
           hotel_id: string
           id?: string
+          image_url?: string | null
           name: string
           price?: number
           veg?: boolean
@@ -627,8 +637,10 @@ export type Database = {
           available?: boolean
           category?: string
           created_at?: string
+          description?: string | null
           hotel_id?: string
           id?: string
+          image_url?: string | null
           name?: string
           price?: number
           veg?: boolean
@@ -1237,6 +1249,7 @@ export type Database = {
       }
       is_member: { Args: never; Returns: boolean }
       is_mgr: { Args: { _hotel: string }; Returns: boolean }
+      mgr_can: { Args: { _hotel: string; _perm: string }; Returns: boolean }
       my_hotel: { Args: never; Returns: string }
       public_hotel: {
         Args: { _hotel?: string; _token?: string }
@@ -1266,6 +1279,7 @@ export type Database = {
       run_automations: { Args: never; Returns: undefined }
       run_backup: { Args: never; Returns: string }
       seed_demo: { Args: { _hotel: string }; Returns: undefined }
+      undo_checkout: { Args: { _booking: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "manager" | "staff"

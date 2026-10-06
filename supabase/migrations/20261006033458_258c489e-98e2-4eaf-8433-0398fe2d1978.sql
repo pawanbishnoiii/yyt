@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.guard_manager_perms() FROM anon, authenticated, public;

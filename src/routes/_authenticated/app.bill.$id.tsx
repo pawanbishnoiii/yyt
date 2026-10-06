@@ -1,16 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
-import { Printer, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { Printer, ArrowLeft, Undo2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
+import { undoCheckout } from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/bill/$id")({ component: BillView });
 
 function BillView() {
   const { id } = Route.useParams();
+  const qc = useQueryClient();
+  const nav = useNavigate();
   const { data } = useQuery({
     queryKey: ["bill", id],
     queryFn: async () => {
@@ -34,9 +38,18 @@ function BillView() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="no-print mb-4 flex justify-between">
+      <div className="no-print mb-4 flex justify-between gap-2">
         <Button variant="outline" asChild><Link to="/app/bills"><ArrowLeft /> Bills</Link></Button>
-        <Button variant="neon" onClick={() => window.print()}><Printer /> Print bill</Button>
+        <div className="flex gap-2">
+          {bk?.status === "checked_out" && bk.check_out && Date.now() - +new Date(bk.check_out) < 3600000 && (
+            <Button variant="outline" onClick={async () => {
+              if (!confirm("Undo this check-out? The bill will be deleted and the guest goes back to the room.")) return;
+              try { await undoCheckout(bk.id); toast.success("Check-out undone"); qc.invalidateQueries(); nav({ to: "/app/room/$id", params: { id: bk.room_id } }); }
+              catch (e) { toast.error((e as Error).message); }
+            }}><Undo2 /> Undo check-out</Button>
+          )}
+          <Button variant="neon" onClick={() => window.print()}><Printer /> Print bill</Button>
+        </div>
       </div>
       <div className="print-area rounded-3xl border bg-card p-8 shadow-card">
         <div className="flex items-start justify-between border-b border-border pb-4">

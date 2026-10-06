@@ -9,7 +9,8 @@ import { Plus, Printer, LogOut, Sparkles, Wrench, BedDouble, Barcode as BarIcon 
 import { supabase } from "@/integrations/supabase/client";
 import { inr, isManager, useHotel, useLive, useMe } from "@/lib/me";
 import { RoomConditions } from "@/components/RoomIssues";
-import { checkoutBooking } from "@/lib/checkout";
+import { CheckoutDialog } from "@/components/CheckoutDialog";
+import { Link } from "@tanstack/react-router";
 import { NoHotel, PageTitle } from "@/components/NoHotel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,13 +56,8 @@ function Rooms() {
     const { error } = await supabase.from("rooms").update({ status }).eq("id", id);
     if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["rooms"] });
   };
-  const checkout = async (bookingId: string) => {
-    try {
-      const billId = await checkoutBooking(bookingId);
-      toast.success("Checked out — bill generated");
-      nav({ to: "/app/bill/$id", params: { id: billId } });
-    } catch (e) { toast.error((e as Error).message); }
-  };
+  const [co, setCo] = useState<string | null>(null);
+  const checkout = (id: string) => setCo(id);
 
   if (labels)
     return (
@@ -87,6 +83,7 @@ function Rooms() {
 
   return (
     <div>
+      <CheckoutDialog bookingId={co} onOpenChange={(o) => !o && setCo(null)} />
       <PageTitle title="Rooms" sub="Live status — real-time updates">
         <div className="flex flex-wrap gap-2">
           <Select value={filter} onValueChange={setFilter}>
@@ -105,10 +102,10 @@ function Rooms() {
             <motion.div layout key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
               className={`rounded-3xl border p-5 ${tone[r.status] ?? ""}`}>
               <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-display text-2xl font-bold">{r.number}</div>
+                <Link to="/app/room/$id" params={{ id: r.id }} className="group">
+                  <div className="font-display text-2xl font-bold group-hover:text-primary">{r.number} <span className="text-xs font-normal text-primary opacity-0 transition group-hover:opacity-100">Open →</span></div>
                   <div className="text-xs text-muted-foreground">{r.room_type} · {inr(Number(r.price))}</div>
-                </div>
+                </Link>
                 <div className="flex flex-col items-end gap-1">
                   <span className="rounded-full bg-card px-2.5 py-1 text-xs capitalize">{r.status}</span>
                   <RoomConditions room={r} hotelId={hotelId} trigger={

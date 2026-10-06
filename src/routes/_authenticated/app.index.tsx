@@ -8,7 +8,7 @@ import { AirVent, Wifi, ShowerHead, Tv, Wrench, Sparkles, LogOut, Tag, Database,
 import { formatDistanceToNow, format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, isManager, useHotel, useLive, useMe } from "@/lib/me";
-import { checkoutBooking } from "@/lib/checkout";
+import { CheckoutDialog } from "@/components/CheckoutDialog";
 import { NoHotel, Panel } from "@/components/NoHotel";
 import { FastCheckin } from "@/components/FastCheckin";
 import CountUp from "@/components/Count";
@@ -29,6 +29,7 @@ function Dashboard() {
   const mgr = isManager(me);
   useLive(["rooms", "bookings", "service_logs", "room_issues"], [["dash", hotelId ?? ""]]);
   const [roomType, setRoomType] = useState<string>("");
+  const [co, setCo] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["dash", hotelId ?? ""],
@@ -94,10 +95,7 @@ function Dashboard() {
     if (i.severity === "high") g.high = true;
   });
 
-  const checkout = async (id: string) => {
-    try { const bill = await checkoutBooking(id); toast.success("Checked out — invoice ready"); qc.invalidateQueries(); nav({ to: "/app/bill/$id", params: { id: bill } }); }
-    catch (e) { toast.error((e as Error).message); }
-  };
+  const checkout = (id: string) => setCo(id);
   const seed = async () => {
     const { error } = await supabase.rpc("seed_demo", { _hotel: hotelId });
     if (error) return toast.error(error.message);
@@ -106,6 +104,7 @@ function Dashboard() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+      <CheckoutDialog bookingId={co} onOpenChange={(o) => !o && setCo(null)} />
       <div className="min-w-0 space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
