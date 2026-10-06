@@ -7,16 +7,14 @@ import { ChefHat, Receipt, CheckCircle2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, useHotel, useLive } from "@/lib/me";
 import { NoHotel, PageTitle } from "@/components/NoHotel";
+import { FOOD_FLOW } from "@/lib/flow";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/app/orders")({ component: Orders });
 
 type Item = { name: string; qty: number; price: number };
-const cols = [
-  { id: "placed", label: "New", icon: Receipt, next: "preparing", action: "Start cooking" },
-  { id: "preparing", label: "Preparing", icon: ChefHat, next: "delivered", action: "Mark delivered" },
-  { id: "delivered", label: "Delivered", icon: CheckCircle2, next: null, action: "" },
-] as const;
+const ICONS = { placed: Receipt, accepted: Receipt, preparing: ChefHat, ready: ChefHat, out_for_delivery: ChefHat, delivered: CheckCircle2 } as const;
+const cols = FOOD_FLOW.map((f) => ({ ...f, icon: ICONS[f.id] }));
 
 function Orders() {
   const { hotelId } = useHotel();
@@ -35,13 +33,13 @@ function Orders() {
   });
   if (!hotelId) return <NoHotel />;
   const move = async (id: string, status: string) => {
-    const { error } = await supabase.from("food_orders").update({ status }).eq("id", id);
+    const { error } = await supabase.from("food_orders").update({ status, ...(status === "accepted" ? { accepted_at: new Date().toISOString() } : {}) } as never).eq("id", id);
     if (error) toast.error(error.message); else qc.invalidateQueries({ queryKey: ["orders"] });
   };
   return (
     <div>
       <PageTitle title="Guest orders" sub="Room-service orders from the guest app update here live" />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         {cols.map((c) => {
           const list = (data?.orders ?? []).filter((o) => o.status === c.id);
           return (

@@ -362,6 +362,7 @@ export type Database = {
       }
       cleaning_tasks: {
         Row: {
+          accepted_at: string | null
           assigned_to: string | null
           base_priority: number
           created_at: string
@@ -376,6 +377,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          accepted_at?: string | null
           assigned_to?: string | null
           base_priority?: number
           created_at?: string
@@ -390,6 +392,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          accepted_at?: string | null
           assigned_to?: string | null
           base_priority?: number
           created_at?: string
@@ -454,6 +457,7 @@ export type Database = {
       }
       food_orders: {
         Row: {
+          accepted_at: string | null
           booking_id: string | null
           created_at: string
           delivered_at: string | null
@@ -464,10 +468,12 @@ export type Database = {
           note: string | null
           order_no: string
           room_id: string
+          sla_alerted: boolean
           status: string
           total: number
         }
         Insert: {
+          accepted_at?: string | null
           booking_id?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -478,10 +484,12 @@ export type Database = {
           note?: string | null
           order_no?: string
           room_id: string
+          sla_alerted?: boolean
           status?: string
           total?: number
         }
         Update: {
+          accepted_at?: string | null
           booking_id?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -492,6 +500,7 @@ export type Database = {
           note?: string | null
           order_no?: string
           room_id?: string
+          sla_alerted?: boolean
           status?: string
           total?: number
         }
@@ -602,6 +611,7 @@ export type Database = {
       hotels: {
         Row: {
           address: string | null
+          automations: Json
           cgst_rate: number
           checkout_time: string
           checkout_time_enabled: boolean
@@ -628,6 +638,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          automations?: Json
           cgst_rate?: number
           checkout_time?: string
           checkout_time_enabled?: boolean
@@ -654,6 +665,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          automations?: Json
           cgst_rate?: number
           checkout_time?: string
           checkout_time_enabled?: boolean
@@ -798,6 +810,7 @@ export type Database = {
           last_seen_at: string | null
           mobile: string | null
           onboarded: boolean
+          staff_code: string | null
           staff_kind: string | null
         }
         Insert: {
@@ -810,6 +823,7 @@ export type Database = {
           last_seen_at?: string | null
           mobile?: string | null
           onboarded?: boolean
+          staff_code?: string | null
           staff_kind?: string | null
         }
         Update: {
@@ -822,6 +836,7 @@ export type Database = {
           last_seen_at?: string | null
           mobile?: string | null
           onboarded?: boolean
+          staff_code?: string | null
           staff_kind?: string | null
         }
         Relationships: [
@@ -1222,6 +1237,7 @@ export type Database = {
         Args: { _email: string; _hotel: string }
         Returns: boolean
       }
+      call_manager: { Args: { _note: string; _room: string }; Returns: boolean }
       can_hotel: { Args: { _hotel: string }; Returns: boolean }
       chain_overview: {
         Args: never
@@ -1428,6 +1444,7 @@ export type Database = {
           staff_kind: string
         }[]
       }
+      staff_code_available: { Args: { _code: string }; Returns: boolean }
       touch_session: { Args: never; Returns: undefined }
       undo_checkout: { Args: { _booking: string }; Returns: boolean }
     }

@@ -30,6 +30,8 @@ function Dashboard() {
   useLive(["rooms", "bookings", "service_logs", "room_issues"], [["dash", hotelId ?? ""]]);
   const [roomType, setRoomType] = useState<string>("");
   const [co, setCo] = useState<string | null>(null);
+  const [demoDone, setDemoDone] = useState(false);
+  const { data: demoFlag } = useQuery({ queryKey: ["demo-flag", hotelId], enabled: !!hotelId, queryFn: async () => (await supabase.from("hotels").select("demo_loaded").eq("id", hotelId!).maybeSingle()).data?.demo_loaded ?? false });
 
   const { data, isLoading } = useQuery({
     queryKey: ["dash", hotelId ?? ""],
@@ -101,6 +103,8 @@ function Dashboard() {
   const seed = async () => {
     const { error } = await supabase.rpc("seed_demo", { _hotel: hotelId });
     if (error) return toast.error(error.message);
+    await supabase.rpc("mark_demo_loaded", { _hotel: hotelId });
+    setDemoDone(true);
     toast.success("Demo data added"); qc.invalidateQueries();
   };
 
@@ -113,7 +117,7 @@ function Dashboard() {
             <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM")}</p>
             <h1 className="text-2xl font-bold md:text-3xl">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, {me?.full_name?.split(" ")[0] ?? "there"}</h1>
           </div>
-          {mgr && data.bookings.length === 0 && <Button variant="outline" size="sm" onClick={seed}><Database /> Load demo data</Button>}
+          {mgr && data.bookings.length === 0 && !demoDone && !demoFlag && <Button variant="outline" size="sm" onClick={seed}><Database /> Load demo data</Button>}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -208,6 +212,7 @@ function Dashboard() {
       </div>
 
       <div className="space-y-6">
+        <LiveOps hotelId={hotelId} />
         {mgr && <FastCheckin hotelId={hotelId} rooms={rooms.map((r) => ({ ...r, price: Number(r.price) }))} />}
         <Panel title={`In-house · ${data.active.length}`}>
           <div className="-my-2 max-h-96 divide-y overflow-auto">
@@ -264,5 +269,35 @@ function DashSkeleton() {
       <div className="space-y-6"><Skeleton className="h-10 w-72" /><div className="grid gap-6 md:grid-cols-2"><Skeleton className="h-56 rounded-2xl" /><Skeleton className="h-56 rounded-2xl" /></div><Skeleton className="h-36 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>
       <div className="space-y-6"><Skeleton className="h-96 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>
     </div>
+  );
+}
+
+function LiveOps({ hotelId }: { hotelId: string }) {
+  useLive(["food_orders", "cleaning_tasks", "alerts"], [["liveops", hotelId]]);
+  const { data } = useQuery({
+    queryKey: ["liveops", hotelId],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 86400000).toISOString();
+      const [o, t, a] = await Promise.all([
+        supabase.from("food_orders").select("id,status,order_no,rooms(number)").eq("hotel_id", hotelId).gte("created_at", since).not("status", "in", "(delivered,cancelled)").order("created_at", { ascending: false }),
+        supabase.from("cleaning_tasks").select("id,status,source,rooms(number)").eq("hotel_id", hotelId).neq("status", "done").order("created_at", { ascending: false }),
+        supabase.from("alerts").select("id,message,kind,created_at").eq("hotel_id", hotelId).order("created_at", { ascending: false }).limit(5),
+      ]);
+      return { orders: (o.data ?? []) as unknown as { id: string; status: string; order_no: string; rooms: { number: string } | null }[], tasks: (t.data ?? []) as unknown as { id: string; status: string; source: string; rooms: { number: string } | null }[], alerts: a.data ?? [] };
+    },
+  });
+  return (
+    <section className="overflow-hidden rounded-2xl border bg-card shadow-card">
+      <div className="flex items-center justify-between border-b px-5 py-4"><h3 className="flex items-center gap-2 font-semibold"><span className="size-2 animate-pulse rounded-full bg-success" />Live operations</h3></div>
+      <div className="grid grid-cols-2 gap-3 p-4">
+        <Link to="/food" className="rounded-xl bg-primary/10 p-3 transition hover:bg-primary/15"><div className="text-2xl font-bold text-primary">{data?.orders.length ?? 0}</div><div className="text-xs text-muted-foreground">Food orders open</div></Link>
+        <Link to="/RoomService" className="rounded-xl bg-warning/10 p-3 transition hover:bg-warning/15"><div className="text-2xl font-bold text-warning">{data?.tasks.length ?? 0}</div><div className="text-xs text-muted-foreground">Room requests open</div></Link>
+      </div>
+      <div className="space-y-1 px-4 pb-4 text-sm">
+        {data?.orders.slice(0, 3).map((o) => <div key={o.id} className="flex justify-between rounded-lg bg-secondary px-3 py-1.5"><span>Room {o.rooms?.number} · #{o.order_no}</span><span className="capitalize text-primary">{o.status.replace(/_/g, " ")}</span></div>)}
+        {data?.tasks.slice(0, 3).map((t) => <div key={t.id} className="flex justify-between rounded-lg bg-secondary px-3 py-1.5"><span>Room {t.rooms?.number} · {t.source}</span><span className="capitalize text-warning">{t.status.replace(/_/g, " ")}</span></div>)}
+        {data?.alerts.map((a) => <div key={a.id} className={`rounded-lg px-3 py-1.5 text-xs ${a.kind === "call" ? "bg-destructive/10 text-destructive" : "text-muted-foreground"}`}>{a.message}</div>)}
+      </div>
+    </section>
   );
 }
