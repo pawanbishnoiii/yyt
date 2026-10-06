@@ -263,7 +263,7 @@ function Fields() {
     <div className="grid gap-6 lg:grid-cols-3">
       <div className={card + " space-y-3"}>
         <h3 className="font-semibold">Add check-in field</h3>
-        <p className="text-xs text-muted-foreground">Name, age, gender, mobile, Aadhaar, address hamesha rahenge. Extra fields yahan banao.</p>
+        <p className="text-xs text-muted-foreground">Name, age, gender, mobile, Aadhaar and address remain standard. Add any extra fields here.</p>
         <div><Label>Label</Label><Input value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} /></div>
         <div><Label>Format</Label>
           <Select value={f.field_type} onValueChange={(v) => setF({ ...f, field_type: v })}><SelectTrigger><SelectValue /></SelectTrigger>
@@ -308,7 +308,7 @@ function Backups() {
   return (
     <div className={card}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4"><img src={clayBackup} alt="" width={1024} height={1024} loading="lazy" className="h-20" /><div><h3 className="font-semibold">Automatic backups</h3><p className="text-xs text-muted-foreground">Roz raat 2:00 AM (IST) automatic. 30 din tak rakhe jaate hain.</p></div></div>
+        <div className="flex items-center gap-4"><img src={clayBackup} alt="" width={1024} height={1024} loading="lazy" className="h-20" /><div><h3 className="font-semibold">Automatic backups</h3><p className="text-xs text-muted-foreground">Runs nightly at 2:00 AM IST and retains the latest 30 days.</p></div></div>
         <Button variant="neon" onClick={run}><DatabaseBackup /> Backup now</Button>
       </div>
       <div className="divide-y">

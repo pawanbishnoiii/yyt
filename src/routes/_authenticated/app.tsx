@@ -49,6 +49,11 @@ function Shell() {
   });
   const mgr = isManager(me);
   const [full, setFull] = useState(false);
+  useEffect(() => {
+    const sync = () => setFull(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
   const links = [
     { to: "/app", label: "Dashboard", icon: LayoutDashboard, show: true },
     { to: "/app/book", label: "New Booking", icon: CalendarPlus, show: mgr },
