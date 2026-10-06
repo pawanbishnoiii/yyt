@@ -76,11 +76,8 @@ function Shell() {
     { title: "Food & service", items: [
       { to: "/app/orders", label: "Guest Orders", icon: ShoppingBag, show: true },
       { to: "/app/menu", label: "Menu Studio", icon: UtensilsCrossed, show: mgr },
-      { to: "/RoomService", label: "Room Service app", icon: Sparkles, show: true },
-      { to: "/food", label: "Kitchen app", icon: ChefHat, show: true },
     ] },
     { title: "Hotel", items: [
-      { to: "/app/staff", label: "Staff", icon: UserCog, show: mgr },
       { to: "/app/settings", label: "Settings", icon: Settings, show: mgr },
       { to: "/app/admin", label: "Chain Control", icon: ShieldCheck, show: isAdmin(me) },
     ] },
