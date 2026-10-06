@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  Compass, Utensils, BellRing, BedDouble, Star, MapPin, Phone, Wifi, Minus, Plus, Leaf, Sparkles,
+  Compass, Utensils, BellRing, BedDouble, Star, MapPin, Phone, Wifi, Leaf, Sparkles,
   Wrench, ShowerHead, Tv, ArrowLeft, Tag, LogOut, Receipt, ChefHat, CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
