@@ -70,6 +70,54 @@ export type Database = {
         }
         Relationships: []
       }
+      bill_payments: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string
+          created_by: string | null
+          hotel_id: string
+          id: string
+          method: string
+          note: string | null
+        }
+        Insert: {
+          amount: number
+          bill_id: string
+          created_at?: string
+          created_by?: string | null
+          hotel_id: string
+          id?: string
+          method?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string
+          created_by?: string | null
+          hotel_id?: string
+          id?: string
+          method?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bills: {
         Row: {
           bill_no: string
@@ -196,6 +244,7 @@ export type Database = {
           booking_code: string
           check_in: string
           check_out: string | null
+          check_out_planned: string | null
           created_at: string
           created_by: string | null
           flagged: boolean
@@ -214,6 +263,7 @@ export type Database = {
           booking_code?: string
           check_in?: string
           check_out?: string | null
+          check_out_planned?: string | null
           created_at?: string
           created_by?: string | null
           flagged?: boolean
@@ -232,6 +282,7 @@ export type Database = {
           booking_code?: string
           check_in?: string
           check_out?: string | null
+          check_out_planned?: string | null
           created_at?: string
           created_by?: string | null
           flagged?: boolean
@@ -505,6 +556,7 @@ export type Database = {
           gender: string | null
           guest_code: string
           id: string
+          id_doc_path: string | null
           interests: string[]
           last_name: string
           mobile: string
@@ -521,6 +573,7 @@ export type Database = {
           gender?: string | null
           guest_code?: string
           id?: string
+          id_doc_path?: string | null
           interests?: string[]
           last_name: string
           mobile: string
@@ -537,6 +590,7 @@ export type Database = {
           gender?: string | null
           guest_code?: string
           id?: string
+          id_doc_path?: string | null
           interests?: string[]
           last_name?: string
           mobile?: string
@@ -549,16 +603,22 @@ export type Database = {
         Row: {
           address: string | null
           cgst_rate: number
+          checkout_time: string
+          checkout_time_enabled: boolean
           city: string | null
           created_at: string
+          demo_loaded: boolean
           food_gst_rate: number
           gst_number: string | null
           id: string
+          id_upload_enabled: boolean
           manager_perms: Json
           name: string
           owner_id: string | null
           phone: string | null
           pincode: string | null
+          room_service_phone: string | null
+          service_items: string[]
           sgst_rate: number
           state: string | null
           status: string
@@ -569,16 +629,22 @@ export type Database = {
         Insert: {
           address?: string | null
           cgst_rate?: number
+          checkout_time?: string
+          checkout_time_enabled?: boolean
           city?: string | null
           created_at?: string
+          demo_loaded?: boolean
           food_gst_rate?: number
           gst_number?: string | null
           id?: string
+          id_upload_enabled?: boolean
           manager_perms?: Json
           name: string
           owner_id?: string | null
           phone?: string | null
           pincode?: string | null
+          room_service_phone?: string | null
+          service_items?: string[]
           sgst_rate?: number
           state?: string | null
           status?: string
@@ -589,16 +655,22 @@ export type Database = {
         Update: {
           address?: string | null
           cgst_rate?: number
+          checkout_time?: string
+          checkout_time_enabled?: boolean
           city?: string | null
           created_at?: string
+          demo_loaded?: boolean
           food_gst_rate?: number
           gst_number?: string | null
           id?: string
+          id_upload_enabled?: boolean
           manager_perms?: Json
           name?: string
           owner_id?: string | null
           phone?: string | null
           pincode?: string | null
+          room_service_phone?: string | null
+          service_items?: string[]
           sgst_rate?: number
           state?: string | null
           status?: string
@@ -723,6 +795,7 @@ export type Database = {
           full_name: string | null
           hotel_id: string | null
           id: string
+          last_seen_at: string | null
           mobile: string | null
           onboarded: boolean
           staff_kind: string | null
@@ -734,6 +807,7 @@ export type Database = {
           full_name?: string | null
           hotel_id?: string | null
           id: string
+          last_seen_at?: string | null
           mobile?: string | null
           onboarded?: boolean
           staff_kind?: string | null
@@ -745,6 +819,7 @@ export type Database = {
           full_name?: string | null
           hotel_id?: string | null
           id?: string
+          last_seen_at?: string | null
           mobile?: string | null
           onboarded?: boolean
           staff_kind?: string | null
@@ -1061,6 +1136,27 @@ export type Database = {
           },
         ]
       }
+      staff_sessions: {
+        Row: {
+          created_at: string
+          hotel_id: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hotel_id?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hotel_id?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       supplies: {
         Row: {
           hotel_id: string
@@ -1192,6 +1288,7 @@ export type Database = {
           booking_code: string
           check_in: string
           check_out: string | null
+          check_out_planned: string | null
           created_at: string
           created_by: string | null
           flagged: boolean
@@ -1224,6 +1321,17 @@ export type Database = {
         Args: { _kind: string; _note: string; _token: string }
         Returns: boolean
       }
+      guest_reserve: {
+        Args: {
+          _adults: number
+          _check_in: string
+          _mobile: string
+          _name: string
+          _nights: number
+          _room: string
+        }
+        Returns: Json
+      }
       guest_review: {
         Args: { _comment: string; _rating: number; _token: string }
         Returns: boolean
@@ -1249,8 +1357,19 @@ export type Database = {
       }
       is_member: { Args: never; Returns: boolean }
       is_mgr: { Args: { _hotel: string }; Returns: boolean }
+      mark_demo_loaded: { Args: { _hotel: string }; Returns: undefined }
       mgr_can: { Args: { _hotel: string; _perm: string }; Returns: boolean }
       my_hotel: { Args: never; Returns: string }
+      public_available_rooms: {
+        Args: { _hotel: string }
+        Returns: {
+          capacity: number
+          id: string
+          number: string
+          price: number
+          room_type: string
+        }[]
+      }
       public_hotel: {
         Args: { _hotel?: string; _token?: string }
         Returns: Json
@@ -1278,11 +1397,37 @@ export type Database = {
       }
       run_automations: { Args: never; Returns: undefined }
       run_backup: { Args: never; Returns: string }
+      save_guest: {
+        Args: {
+          _aadhaar: string
+          _address: string
+          _age: number
+          _first: string
+          _gender: string
+          _id: string
+          _last: string
+          _mobile: string
+        }
+        Returns: string
+      }
       seed_demo: { Args: { _hotel: string }; Returns: undefined }
       set_manager_permissions: {
         Args: { _hotel: string; _permissions: Json }
         Returns: Json
       }
+      staff_activity: {
+        Args: { _hotel: string }
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+          last_seen_at: string
+          mobile: string
+          opens_per_day: number
+          staff_kind: string
+        }[]
+      }
+      touch_session: { Args: never; Returns: undefined }
       undo_checkout: { Args: { _booking: string }; Returns: boolean }
     }
     Enums: {
