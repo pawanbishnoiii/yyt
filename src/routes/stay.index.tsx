@@ -1,7 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { CodeScanner } from "@/components/CodeScanner";
+import exterior from "@/assets/gen-exterior.jpg";
+import spa from "@/assets/gen-spa.jpg";
+import guestPhone from "@/assets/gen-guest-phone.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import { MapPin, Star, QrCode, BedDouble, Utensils, Sparkles } from "lucide-react";
+import { MapPin, Star, QrCode, BedDouble, Utensils, Sparkles, ScanLine, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
 import room from "@/assets/stayos-deluxe-2026.jpg";
@@ -27,16 +33,30 @@ function Explore() {
     queryKey: ["public-hotels"],
     queryFn: async () => (await supabase.rpc("public_hotels")).data ?? [],
   });
-  const pics = [room, rooftop, food];
+  const nav = useNavigate();
+  const [scan, setScan] = useState(false);
+  const [city, setCity] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("https://ipapi.co/json/").then((r) => r.json()).then((d) => d?.city && setCity(String(d.city))).catch(() => {});
+  }, []);
+  const near = (c?: string | null) => !!city && !!c && (c.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(c.toLowerCase()));
+  const sorted = [...(hotels ?? [])].sort((a, b) => Number(near(b.city)) - Number(near(a.city)));
+  const pics = [exterior, room, rooftop, spa, food];
+  const onScan = (raw: string) => {
+    const t = raw.match(/\/stay\/r\/([^/?#]+)/)?.[1];
+    if (!t) return toast.error("That isn't a room QR code");
+    nav({ to: "/stay/r/$token", params: { token: t } });
+  };
   return (
     <div className="min-h-screen bg-background pb-16">
       <div className="relative h-[52vh] min-h-80 overflow-hidden">
-        <img src={rooftop} alt="Rooftop pool at sunset" width={1280} height={896} className="absolute inset-0 size-full object-cover" />
+        <motion.img initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 1.6 }} src={guestPhone} alt="Guest scanning room QR" width={1280} height={896} className="absolute inset-0 size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
         <div className="relative mx-auto flex h-full max-w-5xl flex-col justify-end p-6 text-background">
           <Link to="/" className="mb-auto mt-2 w-fit rounded-full bg-background/20 px-3 py-1 text-xs backdrop-blur">StayOS · Guest</Link>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-bold md:text-6xl">Your stay, in your pocket.</motion.h1>
           <p className="mt-2 max-w-lg opacity-90">Explore hotels, menus and offers freely. Scan the QR in your room to order food, request cleaning or see your bill.</p>
+          <motion.button whileTap={{ scale: 0.96 }} onClick={() => setScan(true)} className="mt-5 flex w-fit items-center gap-2 rounded-2xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg"><ScanLine className="size-5" />Scan & Join your room</motion.button>
         </div>
       </div>
       <div className="relative z-10 mx-auto -mt-8 grid max-w-5xl grid-cols-3 gap-3 px-4">
@@ -50,13 +70,13 @@ function Explore() {
         })}
       </div>
       <div className="mx-auto max-w-5xl px-4">
-        <h2 className="mb-4 mt-10 text-2xl font-bold">Our hotels</h2>
+        <div className="mb-4 mt-10 flex items-end justify-between"><h2 className="text-2xl font-bold">{city ? "Hotels near you" : "Our hotels"}</h2>{city && <span className="flex items-center gap-1 text-sm text-muted-foreground"><Navigation className="size-3.5 text-primary" />{city}</span>}</div>
         {isLoading && <div className="grid gap-4 md:grid-cols-2">{[0, 1].map((i) => <div key={i} className="h-72 animate-pulse rounded-3xl bg-muted" />)}</div>}
         <div className="grid gap-5 md:grid-cols-2">
-          {hotels?.map((h, i) => (
+          {sorted.map((h, i) => (
             <motion.div key={h.id} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
               <Link to="/stay/h/$id" params={{ id: h.id }} className="group block overflow-hidden rounded-3xl border bg-card shadow-card transition hover:-translate-y-1">
-                <div className="h-48 overflow-hidden"><img src={pics[i % 3]} alt={h.name} loading="lazy" width={1280} height={896} className="size-full object-cover transition duration-500 group-hover:scale-105" /></div>
+                <div className="relative h-48 overflow-hidden">{near(h.city) && <span className="absolute left-3 top-3 z-10 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">Nearest</span>}<img src={pics[i % pics.length]} alt={h.name} loading="lazy" width={1280} height={896} className="size-full object-cover transition duration-500 group-hover:scale-105" /></div>
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div><div className="text-lg font-semibold">{h.name}</div><div className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-3" />{h.city ?? "—"}</div></div>
@@ -64,7 +84,7 @@ function Explore() {
                   </div>
                   <div className="mt-4 flex items-center justify-between text-sm">
                     <span className="flex items-center gap-1 text-muted-foreground"><BedDouble className="size-4" />{h.rooms} rooms</span>
-                    {h.min_price != null && <span>from <b className="text-lg">{inr(Number(h.min_price))}</b>/night</span>}
+                    {h.min_price != null && <span className="text-muted-foreground">starting from <b className="text-lg text-foreground">{inr(Number(h.min_price))}</b>/night</span>}
                   </div>
                 </div>
               </Link>
@@ -73,6 +93,7 @@ function Explore() {
         </div>
         {hotels && !hotels.length && <div className="overflow-hidden rounded-3xl border bg-card shadow-card md:grid md:grid-cols-2"><img src={room} alt="Bright modern hotel room" width={1600} height={1008} loading="lazy" className="h-full min-h-64 w-full object-cover"/><div className="flex flex-col justify-center p-8"><h3 className="text-2xl font-bold">The first property is being prepared</h3><p className="mt-2 text-sm text-muted-foreground">A manager must finish the three-step hotel setup before a property becomes publicly discoverable. Room QR links continue to work for configured properties.</p><Link to="/auth" className="mt-5 w-fit rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Set up a hotel</Link></div></div>}
       </div>
+      <CodeScanner open={scan} onOpenChange={setScan} onResult={onScan} title="Scan & Join" hint="Scan the QR code in your room" />
     </div>
   );
 }
