@@ -19,7 +19,9 @@ import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/app.admin'
 import { Route as AuthenticatedAppBillsRouteImport } from './routes/_authenticated/app.bills'
 import { Route as AuthenticatedAppBookRouteImport } from './routes/_authenticated/app.book'
+import { Route as AuthenticatedAppChainRouteImport } from './routes/_authenticated/app.chain'
 import { Route as AuthenticatedAppGuestsRouteImport } from './routes/_authenticated/app.guests'
+import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppRoomsRouteImport } from './routes/_authenticated/app.rooms'
 import { Route as AuthenticatedAppScanRouteImport } from './routes/_authenticated/app.scan'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
@@ -76,9 +78,19 @@ const AuthenticatedAppBookRoute = AuthenticatedAppBookRouteImport.update({
   path: '/book',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppChainRoute = AuthenticatedAppChainRouteImport.update({
+  id: '/chain',
+  path: '/chain',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppGuestsRoute = AuthenticatedAppGuestsRouteImport.update({
   id: '/guests',
   path: '/guests',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppRoomsRoute = AuthenticatedAppRoomsRouteImport.update({
@@ -122,7 +134,9 @@ export interface FileRoutesByFullPath {
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
+  '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -139,7 +153,9 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/bills': typeof AuthenticatedAppBillsRoute
   '/app/book': typeof AuthenticatedAppBookRoute
+  '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -159,7 +175,9 @@ export interface FileRoutesById {
   '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/bills': typeof AuthenticatedAppBillsRoute
   '/_authenticated/app/book': typeof AuthenticatedAppBookRoute
+  '/_authenticated/app/chain': typeof AuthenticatedAppChainRoute
   '/_authenticated/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/_authenticated/app/scan': typeof AuthenticatedAppScanRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
@@ -179,7 +197,9 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
+    | '/app/chain'
     | '/app/guests'
+    | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
     | '/app/settings'
@@ -196,7 +216,9 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/bills'
     | '/app/book'
+    | '/app/chain'
     | '/app/guests'
+    | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
     | '/app/settings'
@@ -215,7 +237,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/admin'
     | '/_authenticated/app/bills'
     | '/_authenticated/app/book'
+    | '/_authenticated/app/chain'
     | '/_authenticated/app/guests'
+    | '/_authenticated/app/orders'
     | '/_authenticated/app/rooms'
     | '/_authenticated/app/scan'
     | '/_authenticated/app/settings'
@@ -306,11 +330,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBookRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/chain': {
+      id: '/_authenticated/app/chain'
+      path: '/chain'
+      fullPath: '/app/chain'
+      preLoaderRoute: typeof AuthenticatedAppChainRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/guests': {
       id: '/_authenticated/app/guests'
       path: '/guests'
       fullPath: '/app/guests'
       preLoaderRoute: typeof AuthenticatedAppGuestsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/orders': {
+      id: '/_authenticated/app/orders'
+      path: '/orders'
+      fullPath: '/app/orders'
+      preLoaderRoute: typeof AuthenticatedAppOrdersRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/rooms': {
@@ -362,7 +400,9 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRoute
   AuthenticatedAppBillsRoute: typeof AuthenticatedAppBillsRoute
   AuthenticatedAppBookRoute: typeof AuthenticatedAppBookRoute
+  AuthenticatedAppChainRoute: typeof AuthenticatedAppChainRoute
   AuthenticatedAppGuestsRoute: typeof AuthenticatedAppGuestsRoute
+  AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppRoomsRoute: typeof AuthenticatedAppRoomsRoute
   AuthenticatedAppScanRoute: typeof AuthenticatedAppScanRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
@@ -374,7 +414,9 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAdminRoute: AuthenticatedAppAdminRoute,
   AuthenticatedAppBillsRoute: AuthenticatedAppBillsRoute,
   AuthenticatedAppBookRoute: AuthenticatedAppBookRoute,
+  AuthenticatedAppChainRoute: AuthenticatedAppChainRoute,
   AuthenticatedAppGuestsRoute: AuthenticatedAppGuestsRoute,
+  AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppRoomsRoute: AuthenticatedAppRoomsRoute,
   AuthenticatedAppScanRoute: AuthenticatedAppScanRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
