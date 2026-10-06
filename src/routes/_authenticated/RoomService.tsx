@@ -77,6 +77,7 @@ function Tasks({ hotelId, uid }: { hotelId: string; uid: string }) {
   };
   const setRoomStatus = async (status: string) => {
     if (!room) return;
+    if (room.status === "occupied" && status !== "maintenance") status = "occupied";
     const { error } = await supabase.from("rooms").update({ status }).eq("id", room.id);
     if (error) return toast.error(error.message);
     await supabase.from("service_logs").insert({ hotel_id: hotelId, room_id: room.id, staff_id: uid, kind: status === "maintenance" ? "maintenance" : "cleaning", note: "Updated by scan: " + status });
