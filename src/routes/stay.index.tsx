@@ -4,9 +4,9 @@ import { motion } from "motion/react";
 import { MapPin, Star, QrCode, BedDouble, Utensils, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
-import room from "@/assets/photo-room.jpg";
-import rooftop from "@/assets/photo-rooftop.jpg";
-import food from "@/assets/photo-food.jpg";
+import room from "@/assets/stayos-deluxe-2026.jpg";
+import rooftop from "@/assets/stayos-rooftop-2026.jpg";
+import food from "@/assets/stayos-food-2026.jpg";
 
 export const Route = createFileRoute("/stay/")({
   head: () => ({
@@ -71,7 +71,7 @@ function Explore() {
             </motion.div>
           ))}
         </div>
-        {hotels && !hotels.length && <p className="rounded-3xl border bg-card p-10 text-center text-muted-foreground">No hotels are listed yet.</p>}
+        {hotels && !hotels.length && <div className="overflow-hidden rounded-3xl border bg-card shadow-card md:grid md:grid-cols-2"><img src={room} alt="Bright modern hotel room" width={1600} height={1008} loading="lazy" className="h-full min-h-64 w-full object-cover"/><div className="flex flex-col justify-center p-8"><h3 className="text-2xl font-bold">The first property is being prepared</h3><p className="mt-2 text-sm text-muted-foreground">A manager must finish the three-step hotel setup before a property becomes publicly discoverable. Room QR links continue to work for configured properties.</p><Link to="/auth" className="mt-5 w-fit rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Set up a hotel</Link></div></div>}
       </div>
     </div>
   );
