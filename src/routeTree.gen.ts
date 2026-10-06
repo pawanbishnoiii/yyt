@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppBillsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppBookRouteImport } from './routes/_authenticated/app.book'
 import { Route as AuthenticatedAppChainRouteImport } from './routes/_authenticated/app.chain'
 import { Route as AuthenticatedAppGuestsRouteImport } from './routes/_authenticated/app.guests'
+import { Route as AuthenticatedAppMenuRouteImport } from './routes/_authenticated/app.menu'
 import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppRoomsRouteImport } from './routes/_authenticated/app.rooms'
 import { Route as AuthenticatedAppScanRouteImport } from './routes/_authenticated/app.scan'
@@ -89,6 +90,11 @@ const AuthenticatedAppGuestsRoute = AuthenticatedAppGuestsRouteImport.update({
   path: '/guests',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppMenuRoute = AuthenticatedAppMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/app/book': typeof AuthenticatedAppBookRoute
   '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/menu': typeof AuthenticatedAppMenuRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/app/book': typeof AuthenticatedAppBookRoute
   '/app/chain': typeof AuthenticatedAppChainRoute
   '/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/app/menu': typeof AuthenticatedAppMenuRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/app/scan': typeof AuthenticatedAppScanRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/app/book': typeof AuthenticatedAppBookRoute
   '/_authenticated/app/chain': typeof AuthenticatedAppChainRoute
   '/_authenticated/app/guests': typeof AuthenticatedAppGuestsRoute
+  '/_authenticated/app/menu': typeof AuthenticatedAppMenuRoute
   '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/rooms': typeof AuthenticatedAppRoomsRoute
   '/_authenticated/app/scan': typeof AuthenticatedAppScanRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/app/book'
     | '/app/chain'
     | '/app/guests'
+    | '/app/menu'
     | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/app/book'
     | '/app/chain'
     | '/app/guests'
+    | '/app/menu'
     | '/app/orders'
     | '/app/rooms'
     | '/app/scan'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/book'
     | '/_authenticated/app/chain'
     | '/_authenticated/app/guests'
+    | '/_authenticated/app/menu'
     | '/_authenticated/app/orders'
     | '/_authenticated/app/rooms'
     | '/_authenticated/app/scan'
@@ -356,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppGuestsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/menu': {
+      id: '/_authenticated/app/menu'
+      path: '/menu'
+      fullPath: '/app/menu'
+      preLoaderRoute: typeof AuthenticatedAppMenuRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/orders': {
       id: '/_authenticated/app/orders'
       path: '/orders'
@@ -421,6 +440,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBookRoute: typeof AuthenticatedAppBookRoute
   AuthenticatedAppChainRoute: typeof AuthenticatedAppChainRoute
   AuthenticatedAppGuestsRoute: typeof AuthenticatedAppGuestsRoute
+  AuthenticatedAppMenuRoute: typeof AuthenticatedAppMenuRoute
   AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppRoomsRoute: typeof AuthenticatedAppRoomsRoute
   AuthenticatedAppScanRoute: typeof AuthenticatedAppScanRoute
@@ -436,6 +456,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBookRoute: AuthenticatedAppBookRoute,
   AuthenticatedAppChainRoute: AuthenticatedAppChainRoute,
   AuthenticatedAppGuestsRoute: AuthenticatedAppGuestsRoute,
+  AuthenticatedAppMenuRoute: AuthenticatedAppMenuRoute,
   AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppRoomsRoute: AuthenticatedAppRoomsRoute,
   AuthenticatedAppScanRoute: AuthenticatedAppScanRoute,

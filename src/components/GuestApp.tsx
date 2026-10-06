@@ -11,18 +11,20 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/me";
 import { Button } from "@/components/ui/button";
+import { OrderItemCard } from "@/components/ui/item-card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GuestAuthSheet, useGuestUser } from "@/components/GuestAuthSheet";
 import room from "@/assets/photo-room.jpg";
-import food from "@/assets/photo-food.jpg";
-import rooftop from "@/assets/photo-rooftop.jpg";
-import reception from "@/assets/photo-reception.jpg";
+import food from "@/assets/stayos-food-2026.jpg";
+import rooftop from "@/assets/stayos-rooftop-2026.jpg";
+import reception from "@/assets/stayos-lobby-2026.jpg";
+import deluxe from "@/assets/stayos-deluxe-2026.jpg";
 
 type Pub = {
   id: string; name: string; city: string | null; address: string | null; phone: string | null; room: string | null;
   room_types: { type: string; price: number; count: number }[];
-  menu: { id: string; name: string; category: string; price: number; veg: boolean }[];
+  menu: { id: string; name: string; category: string; price: number; veg: boolean; image_url?: string | null; description?: string | null }[];
   offers: { title: string; code: string; pct: number }[];
   rating: number | null; reviews: number;
 };
@@ -130,7 +132,7 @@ export function GuestApp({ hotelId, token }: { hotelId?: string; token?: string 
             <h2 className="font-semibold">Rooms</h2>
             {pub.room_types.map((r) => (
               <div key={r.type} className="flex items-center gap-3 rounded-2xl border bg-card p-3 shadow-card">
-                <img src={room} alt="" loading="lazy" width={1280} height={896} className="size-16 rounded-xl object-cover" />
+                <img src={deluxe} alt="" loading="lazy" width={1600} height={1008} className="size-16 rounded-xl object-cover" />
                 <div className="flex-1"><div className="font-medium capitalize">{r.type}</div><div className="text-xs text-muted-foreground">{r.count} rooms</div></div>
                 <div className="text-right"><b>{inr(r.price)}</b><div className="text-xs text-muted-foreground">/night</div></div>
               </div>
@@ -153,19 +155,7 @@ export function GuestApp({ hotelId, token }: { hotelId?: string; token?: string 
             {!pub.menu.length && <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">The menu will appear here soon.</p>}
             {cats.map((c) => (
               <div key={c}><h3 className="mb-2 text-sm font-semibold text-muted-foreground">{c}</h3>
-                <div className="space-y-2">{pub.menu.filter((m) => m.category === c && (!veg || m.veg)).map((m) => (
-                  <div key={m.id} className="flex items-center gap-3 rounded-2xl border bg-card p-3">
-                    <span className={`grid size-4 place-items-center rounded-sm border-2 ${m.veg ? "border-success" : "border-destructive"}`}><span className={`size-1.5 rounded-full ${m.veg ? "bg-success" : "bg-destructive"}`} /></span>
-                    <div className="flex-1"><div className="font-medium">{m.name}</div><div className="text-sm text-muted-foreground">{inr(m.price)}</div></div>
-                    {cart[m.id] ? (
-                      <div className="flex items-center gap-2 rounded-full bg-primary/10 px-1">
-                        <button onClick={() => setCart((c2) => { const n = { ...c2 }; n[m.id]--; if (!n[m.id]) delete n[m.id]; return n; })} className="p-1.5" aria-label="Less"><Minus className="size-3" /></button>
-                        <span className="text-sm font-semibold">{cart[m.id]}</span>
-                        <button onClick={() => setCart((c2) => ({ ...c2, [m.id]: Math.min(20, (c2[m.id] ?? 0) + 1) }))} className="p-1.5" aria-label="More"><Plus className="size-3" /></button>
-                      </div>
-                    ) : <Button size="sm" variant="outline" className="rounded-full" onClick={() => setCart((c2) => ({ ...c2, [m.id]: 1 }))}>Add</Button>}
-                  </div>
-                ))}</div>
+                <div className="space-y-2">{pub.menu.filter((m) => m.category === c && (!veg || m.veg)).map((m) => <GuestMenuItem key={m.id} item={m} quantity={cart[m.id] ?? 0} onChange={q=>setCart(c2=>{const n={...c2};if(q)n[m.id]=q;else delete n[m.id];return n;})}/>)}</div>
               </div>
             ))}
             {count > 0 && <Textarea placeholder="Cooking note (optional)" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} />}
@@ -251,4 +241,9 @@ export function GuestApp({ hotelId, token }: { hotelId?: string; token?: string 
       <GuestAuthSheet open={!!auth} onOpenChange={(o) => !o && setAuth(null)} reason={auth?.reason ?? ""} onDone={() => { const f = auth?.then; setAuth(null); setTimeout(() => f?.(), 400); }} />
     </div>
   );
+}
+
+function GuestMenuItem({item,quantity,onChange}:{item:Pub["menu"][number];quantity:number;onChange:(q:number)=>void}){
+  const {data}=useQuery({queryKey:["guest-menu-image",item.image_url],enabled:!!item.image_url,staleTime:50*60_000,queryFn:async()=>(await supabase.storage.from("menu-images").createSignedUrl(item.image_url!,3600)).data?.signedUrl});
+  return <OrderItemCard imageUrl={data??food} title={item.name} details={[item.description||item.category,item.category]} price={item.price} veg={item.veg} quantity={quantity} onQuantityChange={onChange}/>;
 }

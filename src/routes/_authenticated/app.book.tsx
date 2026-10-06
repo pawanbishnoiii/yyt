@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { z } from "zod";
-import { Search, UserCheck, UserPlus, Check, BedDouble, ArrowLeft, ArrowRight, Zap } from "lucide-react";
+import { Search, UserCheck, UserPlus, Check, BedDouble, ArrowLeft, ArrowRight, Zap, Users, CreditCard, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inr, useHotel, useMe } from "@/lib/me";
 import { NoHotel, PageTitle } from "@/components/NoHotel";
@@ -35,6 +35,8 @@ type Guest = {
   mobile: string; aadhaar: string; address: string; interests: string[]; extra: Record<string, string>;
 };
 const emptyGuest: Guest = { first_name: "", last_name: "", age: "", gender: "", mobile: "", aadhaar: "", address: "", interests: [], extra: {} };
+type Occupant = { full_name: string; age: string; gender: string; aadhaar: string };
+const emptyOccupant = (): Occupant => ({ full_name: "", age: "", gender: "", aadhaar: "" });
 
 function Booking() {
   const { hotelId } = useHotel();
@@ -47,8 +49,10 @@ function Booking() {
   const [found, setFound] = useState<boolean | null>(null);
   const [roomId, setRoomId] = useState("");
   const [nights, setNights] = useState(1);
-  const [adults, setAdults] = useState(1);
-  const [offerId, setOfferId] = useState("none");
+  const [occupants, setOccupants] = useState<Occupant[]>([]);
+  const [offerCode, setOfferCode] = useState("");
+  const [paymentMode, setPaymentMode] = useState("cash");
+  const [paid, setPaid] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const { data: fields } = useQuery({
@@ -64,12 +68,17 @@ function Booking() {
     queryKey: ["offers-active"],
     queryFn: async () => (await supabase.from("offers").select("*").eq("active", true)).data ?? [],
   });
+  const { data: hotel } = useQuery({ queryKey: ["book-hotel", hotelId], enabled: !!hotelId, queryFn: async () => (await supabase.from("hotels").select("cgst_rate,sgst_rate").eq("id", hotelId!).single()).data });
 
   if (!hotelId) return <NoHotel />;
   const room = rooms?.find((r) => r.id === roomId);
-  const offer = offers?.find((o) => o.id === offerId);
+  const offer = offers?.find((o) => o.code.toUpperCase() === offerCode.trim().toUpperCase());
   const base = room ? Number(room.price) * nights : 0;
   const disc = offer ? (base * Number(offer.discount_pct)) / 100 : 0;
+  const taxable = base - disc;
+  const cgst = taxable * Number(hotel?.cgst_rate ?? 6) / 100;
+  const sgst = taxable * Number(hotel?.sgst_rate ?? 6) / 100;
+  const total = taxable + cgst + sgst;
 
   const doLookup = async () => {
     const q = lookup.trim();
@@ -116,14 +125,12 @@ function Booking() {
         if (error) throw error;
         gid = data.id; gcode = data.guest_code;
       }
-      const { data: bk, error: be } = await supabase.from("bookings").insert({
-        hotel_id: hotelId, guest_id: gid!, room_id: room.id, nights, adults, rate: room.price,
-        offer_id: offer?.id ?? null, created_by: me?.id,
-      }).select("booking_code").single();
+      const allOccupants = [{ full_name: `${guest.first_name} ${guest.last_name}`, age: Number(guest.age), gender: guest.gender, aadhaar: guest.aadhaar || null, is_primary: true }, ...occupants.map(o => ({ full_name: o.full_name.trim(), age: Number(o.age), gender: o.gender, aadhaar: o.aadhaar || null, is_primary: false }))];
+      const { data: bk, error: be } = await supabase.rpc("create_booking", { _guest: gid!, _room: room.id, _nights: nights, _occupants: allOccupants, _offer_code: offer?.code ?? "", _paid: paid, _payment_mode: paymentMode, _source: "walk_in" });
       if (be) throw be;
-      await supabase.from("rooms").update({ status: "occupied" }).eq("id", room.id);
-      confetti({ particleCount: 140, spread: 80, colors: ["#7C3AED", "#06B6D4", "#F472B6"] });
-      toast.success(`Checked in! Booking ${bk.booking_code} · Guest ID ${gcode}`);
+      const result = bk as { booking_code?: string } | null;
+      confetti({ particleCount: 140, spread: 80, colors: ["#E4472D", "#32A6A0", "#F1B45A"] });
+      toast.success(`Checked in! Booking ${result?.booking_code ?? "created"} · Guest ID ${gcode}`);
       qc.invalidateQueries();
       nav({ to: "/app/rooms" });
     } catch (e) {
@@ -133,10 +140,10 @@ function Booking() {
     }
   };
 
-  const steps = ["Guest", "Room", "Confirm"];
+  const steps = ["Lead guest", "Room", "Guests", "Payment"];
   return (
     <div className="mx-auto max-w-4xl">
-      <PageTitle title="New booking" sub="3 steps — guest, room, confirm" />
+      <PageTitle title="New booking" sub="A guided 4-step check-in with guest identity, room selection and final tax total" />
       <div className="mb-8 flex items-center gap-2">
         {steps.map((s, i) => (
           <div key={s} className="flex flex-1 items-center gap-2">
@@ -145,7 +152,7 @@ function Booking() {
               {i < step ? <Check className="size-4" /> : i + 1}
             </motion.span>
             <span className={`text-sm ${i <= step ? "" : "text-muted-foreground"}`}>{s}</span>
-            {i < 2 && <div className="h-0.5 flex-1 rounded bg-secondary"><motion.div className="h-full rounded bg-neon" animate={{ width: i < step ? "100%" : "0%" }} /></div>}
+            {i < 3 && <div className="h-0.5 flex-1 rounded bg-secondary"><motion.div className="h-full rounded bg-neon" animate={{ width: i < step ? "100%" : "0%" }} /></div>}
           </div>
         ))}
       </div>
@@ -158,7 +165,7 @@ function Booking() {
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input className="rounded-full pl-9" placeholder="Mobile (10) ya Aadhaar (12) number" value={lookup}
+                  <Input className="rounded-full pl-9" placeholder="Mobile (10 digits) or Aadhaar (12 digits)" value={lookup}
                     onChange={(e) => setLookup(e.target.value.replace(/\D/g, "").slice(0, 12))} onKeyDown={(e) => e.key === "Enter" && doLookup()} />
                 </div>
                 <Button variant="neon" onClick={doLookup}><Search /> Fetch guest</Button>
@@ -166,7 +173,7 @@ function Booking() {
               {found !== null && (
                 <div className={`flex items-center gap-3 rounded-2xl p-3 text-sm ${found ? "bg-success/10 text-success" : "bg-accent/10 text-accent"}`}>
                   {found ? <UserCheck /> : <UserPlus />}
-                  {found ? `Returning guest · ID ${guest.guest_code}` : "New guest — ID booking par generate hogi"}
+                  {found ? `Returning guest · ID ${guest.guest_code}` : "New guest — a guest ID will be generated at booking"}
                 </div>
               )}
               {found !== null && (
@@ -231,30 +238,40 @@ function Booking() {
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <F label="Nights"><Input type="number" min={1} value={nights} onChange={(e) => setNights(Math.max(1, Number(e.target.value)))} /></F>
-                <F label="Adults"><Input type="number" min={1} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value)))} /></F>
-                <F label="Offer">
-                  <Select value={offerId} onValueChange={setOfferId}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No offer</SelectItem>
-                      {(offers ?? []).map((o) => <SelectItem key={o.id} value={o.id}>{o.code} · {o.discount_pct}% off</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </F>
+                <F label="Total guests"><Input readOnly value={occupants.length + 1} /></F>
+                <F label="Booking source"><Input readOnly value="Walk-in / front desk" /></F>
               </div>
             </div>
           )}
 
-          {step === 2 && room && (
+          {step === 2 && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between"><div><h2 className="text-xl font-bold">Everyone staying in the room</h2><p className="text-sm text-muted-foreground">The lead guest is mandatory. Add every additional occupant and their identity details.</p></div><Users className="size-8 text-primary" /></div>
+              <div className="rounded-2xl border bg-muted/40 p-4"><div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Primary guest</div><div className="mt-1 font-semibold">{guest.first_name} {guest.last_name}</div><div className="text-sm text-muted-foreground">Age {guest.age} · {guest.gender} · Aadhaar {guest.aadhaar || "not provided"}</div></div>
+              {occupants.map((o, i) => <div key={i} className="grid gap-3 rounded-2xl border p-4 sm:grid-cols-[2fr_1fr_1.2fr_2fr_auto]">
+                <F label={`Guest ${i + 2} name *`}><Input value={o.full_name} onChange={e => setOccupants(occupants.map((x,j) => j===i ? {...x,full_name:e.target.value}:x))} /></F>
+                <F label="Age *"><Input type="number" value={o.age} onChange={e => setOccupants(occupants.map((x,j) => j===i ? {...x,age:e.target.value}:x))} /></F>
+                <F label="Gender *"><Select value={o.gender} onValueChange={v => setOccupants(occupants.map((x,j) => j===i ? {...x,gender:v}:x))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{["Male","Female","Other"].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select></F>
+                <F label="Aadhaar *"><Input value={o.aadhaar} onChange={e => setOccupants(occupants.map((x,j) => j===i ? {...x,aadhaar:e.target.value.replace(/\D/g,"").slice(0,12)}:x))} /></F>
+                <Button className="self-end" size="icon" variant="ghost" onClick={() => setOccupants(occupants.filter((_,j)=>j!==i))}><Trash2 /></Button>
+              </div>)}
+              <Button variant="outline" onClick={() => setOccupants([...occupants, emptyOccupant()])}><Plus />Add another guest</Button>
+            </div>
+          )}
+
+          {step === 3 && room && (
             <div className="grid items-center gap-6 md:grid-cols-[1fr_200px]">
               <div className="space-y-3 text-sm">
                 <Row k="Guest" v={`${guest.first_name} ${guest.last_name} · ${guest.mobile}`} />
                 <Row k="Room" v={`${room.number} · ${room.room_type}`} />
-                <Row k="Stay" v={`${nights} night(s) · ${adults} adult(s)`} />
+                <Row k="Stay" v={`${nights} night(s) · ${occupants.length + 1} guest(s)`} />
                 <Row k="Room charges" v={inr(base)} />
                 {offer && <Row k={`Offer ${offer.code}`} v={"- " + inr(disc)} />}
-                <div className="flex justify-between border-t pt-3 font-display text-lg font-bold"><span>Estimate (pre-GST)</span><span className="text-neon">{inr(base - disc)}</span></div>
-                <p className="text-xs text-muted-foreground">GST aur room service charges check-out bill me add honge.</p>
+                <div className="flex gap-2"><Input placeholder="Discount code" value={offerCode} onChange={e => setOfferCode(e.target.value.toUpperCase())} /><Button variant="outline" onClick={() => toast[offer ? "success" : "error"](offer ? `${offer.discount_pct}% discount applied` : "Offer code not found")}>Apply</Button></div>
+                <Row k={`CGST (${hotel?.cgst_rate ?? 6}%)`} v={inr(cgst)} /><Row k={`SGST (${hotel?.sgst_rate ?? 6}%)`} v={inr(sgst)} />
+                <div className="flex justify-between border-t pt-3 font-display text-lg font-bold"><span>Final total</span><span className="text-primary">{inr(total)}</span></div>
+                <div className="grid grid-cols-2 gap-3"><F label="Payment method"><Select value={paymentMode} onValueChange={setPaymentMode}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["cash","upi","card","pay_later"].map(m=><SelectItem key={m} value={m}>{m.replace("_"," ").toUpperCase()}</SelectItem>)}</SelectContent></Select></F><label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={paid} onChange={e=>setPaid(e.target.checked)} />Payment received</label></div>
+                <p className="text-xs text-muted-foreground">The opening bill is generated with taxes now. Food and services are added at check-out.</p>
               </div>
               <img src={clayBell} alt="" width={1024} height={1024} loading="lazy" className="animate-float" />
             </div>
@@ -264,10 +281,11 @@ function Booking() {
 
       <div className="mt-6 flex justify-between">
         <Button variant="outline" disabled={step === 0} onClick={() => setStep(step - 1)}><ArrowLeft /> Back</Button>
-        {step < 2 ? (
+        {step < 3 ? (
           <Button variant="neon" disabled={step === 0 && found === null} onClick={() => {
             if (step === 0 && !validateGuest()) return;
             if (step === 1 && !roomId) return toast.error("Please select a room");
+            if (step === 2 && occupants.some(o => !o.full_name.trim() || !o.age || !o.gender || !/^\d{12}$/.test(o.aadhaar))) return toast.error("Complete every additional guest, including a 12-digit Aadhaar");
             setStep(step + 1);
           }}>Next <ArrowRight /></Button>
         ) : (
