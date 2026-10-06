@@ -1279,6 +1279,10 @@ export type Database = {
       run_automations: { Args: never; Returns: undefined }
       run_backup: { Args: never; Returns: string }
       seed_demo: { Args: { _hotel: string }; Returns: undefined }
+      set_manager_permissions: {
+        Args: { _hotel: string; _permissions: Json }
+        Returns: Json
+      }
       undo_checkout: { Args: { _booking: string }; Returns: boolean }
     }
     Enums: {
