@@ -21,3 +21,5 @@
 - Room conditions live in `room_issues` and alerts in `alerts` (written only by the cron-run `run_automations()`) — so automations need no HTTP endpoint.
 - Fast check-in goes through the `quick_checkin()` RPC — it locks the room row so one room can't be double-booked.
 - Demo data is created by the `seed_demo(hotel)` RPC, gated by `is_mgr` — so no seed rows are hard-coded in migrations.
+- Menu photos use the private `menu-images` bucket with signed display URLs and hotel-folder RLS — public buckets are blocked by workspace policy.
+- The legacy `/app/chain` route redirects to merged `/app/admin` chain control — avoids duplicate administration surfaces.
