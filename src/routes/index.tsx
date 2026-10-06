@@ -73,6 +73,7 @@ function Landing() {
           <a href="#features" className="hover:text-foreground">Features</a><a href="#roles" className="hover:text-foreground">Roles</a><a href="#faq" className="hover:text-foreground">FAQ</a>
         </div>
         <div className="flex gap-2">
+          <Button variant="ghost" size="sm" asChild><Link to="/stay">Guest app</Link></Button>
           <Button variant="ghost" size="sm" asChild><Link to="/auth">Sign in</Link></Button>
           <Button variant="neon" size="sm" asChild><Link to="/auth">Get started</Link></Button>
         </div>
