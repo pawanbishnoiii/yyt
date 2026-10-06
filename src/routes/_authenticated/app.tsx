@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   LayoutDashboard, CalendarPlus, BedDouble, Users, Receipt, ScanLine, Settings, LogOut, Building2,
-  Search, Bell, ShieldCheck, Plus,
+  Search, Bell, ShieldCheck, Plus, UtensilsCrossed, Network,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HotelProvider, isAdmin, isManager, useHotel, useLive, useMe } from "@/lib/me";
@@ -54,8 +54,10 @@ function Shell() {
     { to: "/app/rooms", label: "Rooms", icon: BedDouble, show: true },
     { to: "/app/guests", label: "Guests", icon: Users, show: mgr },
     { to: "/app/bills", label: "Bills", icon: Receipt, show: mgr },
+    { to: "/app/orders", label: "Guest Orders", icon: UtensilsCrossed, show: true },
     { to: "/app/scan", label: "Scan Room", icon: ScanLine, show: true },
     { to: "/app/settings", label: "Hotel Settings", icon: Settings, show: mgr },
+    { to: "/app/chain", label: "Chain", icon: Network, show: isAdmin(me) },
     { to: "/app/admin", label: "Admin", icon: ShieldCheck, show: isAdmin(me) },
   ] as const;
   const hotel = hotels?.find((h) => h.id === hotelId);
