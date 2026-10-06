@@ -14,4 +14,11 @@ describe("GST bill math", () => {
     expect(b.taxable).toBe(1100);
     expect(b.total).toBe(1232);
   });
+  it("taxes room-service food at the hotel's own food GST rate (5% default)", () => {
+    const b = computeBill({ rate: 1000, nights: 1, extras: 0, discountPct: 0, cgstRate: 6, sgstRate: 6, food: 400, foodRate: 5 });
+    expect(b.foodTax).toBe(20);
+    expect(b.cgst).toBe(70);
+    expect(b.sgst).toBe(70);
+    expect(b.total).toBe(1540);
+  });
 });
